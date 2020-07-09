@@ -43,11 +43,12 @@ var edgeColor = "black";
 var nodeSize = 4;
 var width = 640;
 var height = 640;
-var focalLength = 100;
+var focalLength = 10;
 
-var camera = [0, 0, -800];
+var camera = [200, 200, 200];
 var rot = [0, 0, 0];
 var lightVector = [0.5, -0.2, -2];
+var pixelSize = 1;
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
@@ -104,11 +105,23 @@ lightVector = normaliseVector(lightVector);
 var ctx;
 window.onload = () => {
     var canvas = document.getElementById("canvas");
-    rotateY3D(0.01);
     ctx = canvas.getContext("2d");
+    
     setTimeout(() => {
-        RenderFrames(500)
-    }, 5000);
+        ViewFrames();
+        //RenderFrames(1000)
+    }, 1000);
+}
+
+function ViewFrames(){
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, width, height);
+    rotateY3D(0.1);
+    draw(ctx, backgroundColor);
+
+    setTimeout(() => {
+        ViewFrames();
+    }, 1000/30);
 }
 
 function RenderFrames(frameCount) {
@@ -118,10 +131,11 @@ function RenderFrames(frameCount) {
         rotateY3D(0.01);
         draw(ctx, backgroundColor);
         
-        var filename = 'Frame'+frameCount+'.png'
+        var filename = 'Frames'+frameCount+'.png'
         document.getElementById("canvas").toBlob(function (blob) {
             saveAs(blob, filename);
         });
+        
         setTimeout(() => {
             RenderFrames(frameCount-1)
         }, 100);
@@ -181,15 +195,15 @@ function checkIfInsideTriangle(triangle, point){
 
 function draw(ctx, backgroundColor){
     console.log("Running");
-    var pixelSize = 1;
+    
     for (let x = 0; x < width / pixelSize; x++) {
         for (let y = 0; y < height / pixelSize; y++) {
             var possibleTriangles = [];
             var possibleLights = [];
             var isTriangle = false;
             for (let tri = 0; tri < triangles.length; tri++) {
-                var Px = pixelSize * x;
-                var Py = pixelSize * y;
+                var Px = pixelSize * x - camera[0]/2;
+                var Py = pixelSize * y - camera[1]/2;
                 var Pz = focalLength;
                 var triangle = triangles[tri];
                 var intersection = calcIntersection(Px, Py, Pz, triangle);
@@ -239,10 +253,10 @@ var rotateZ3D = function (theta) {
     var cosTheta = Math.cos(theta);
     for (var n = 0; n < nodes.length; n++) {
         var node = nodes[n];
-        var x = node[0];
-        var y = node[1];
-        node[0] = x * cosTheta - y * sinTheta;
-        node[1] = y * cosTheta + x * sinTheta;
+        var x = node[0]-camera[0];
+        var y = node[1]-camera[1];
+        node[0] = x * cosTheta - y * sinTheta + camera[0];
+        node[1] = y * cosTheta + x * sinTheta + camera[1];
     }
 };
 
@@ -251,10 +265,10 @@ var rotateX3D = function (theta) {
     var cosTheta = Math.cos(theta);
     for (var n = 0; n < nodes.length; n++) {
         var node = nodes[n];
-        var y = node[1];
-        var z = node[2];
-        node[1] = y * cosTheta - z * sinTheta;
-        node[2] = z * cosTheta + y * sinTheta;
+        var y = node[1]-camera[1];
+        var z = node[2] - camera[2];
+        node[1] = y * cosTheta - z * sinTheta + camera[1];
+        node[2] = z * cosTheta + y * sinTheta + camera[2];
     }
 };
 
@@ -263,9 +277,9 @@ var rotateY3D = function (theta) {
     var cosTheta = Math.cos(theta);
     for (var n = 0; n < nodes.length; n++) {
         var node = nodes[n];
-        var x = node[0];
-        var z = node[2];
-        node[0] = x * cosTheta + z * sinTheta;
-        node[2] = z * cosTheta - x * sinTheta;
+        var x = node[0] - camera[0];
+        var z = node[2] - camera[2];
+        node[0] = x * cosTheta + z * sinTheta + camera[0];
+        node[2] = z * cosTheta - x * sinTheta + camera[2];
     }
 };
