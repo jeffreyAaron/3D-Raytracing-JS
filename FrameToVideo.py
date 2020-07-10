@@ -12,14 +12,17 @@ args = vars(ap.parse_args())
 dir_path = 'FastFilm'
 ext = args['extension']
 output = args['output']
-
 images = []
-for f in os.listdir(dir_path):
-    if f.endswith(ext):
-        images.append(f)
+numFrames = 1000
+for i in range(numFrames):
+    #print("FastFrames"+str(i+1)+".png")
+    images.append("FastFrames"+str(i+1)+".png")
+
+
 
 # Determine the width and height from the first image
 image_path = os.path.join(dir_path, images[0])
+#print(image_path)
 frame = cv2.imread(image_path)
 cv2.imshow('video',frame)
 height, width, channels = frame.shape
