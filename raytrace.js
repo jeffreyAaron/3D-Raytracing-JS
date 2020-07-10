@@ -48,7 +48,7 @@ var focalLength = 10;
 var camera = [200, 200, 200];
 var rot = [0, 0, 0];
 var lightVector = [0.5, -0.2, -2];
-var pixelSize = 1;
+var pixelSize = 5;
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
@@ -87,12 +87,15 @@ var equationOfAPlane = function (a) {
 
     var v1 = subtractVectors(n1, n2);
     var v2 = subtractVectors(n1, n3);
+    var v31 = v1[1] * v2[2] - v1[2] * v2[1];
+    var v32 = v1[2] * v2[0] - v1[0] * v2[2];
+    var v33 = v1[0] * v2[1] - v1[1] * v2[0];
 
-    var v3 = [[v1[1] * v2[2] - v1[2] * v2[1]],
-    [v1[2] * v2[0] - v1[0] * v2[2]],
-    [v1[0] * v2[1] - v1[1] * v2[0]]];
-    var d = -(v3[0] * n1[0] + v3[1] * n1[1] + v3[2] * n1[2])
-    v3.push(d)
+    var d = -(v31 * n1[0] + v32 * n1[1] + v33 * n1[2])
+    var v3 = [
+        v31, v32, v33, d
+    ];
+    //console.log(v3)
     return v3;
 };
 
