@@ -48,11 +48,24 @@ var focalLength = 10;
 var camera = [200, 200, 200];
 var rot = [0, 0, 0];
 var lightVector = [0.5, -0.2, -2];
-var pixelSize = 5;
+var pixelSize = 1;
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
 };
+
+function inverseMatrix(mat){
+    var a = mat[0][0], b = mat[0][1], c = mat[0][2], d = mat[1][0], e = mat[1][1], f = mat[1][2], g = mat[2][0], h = mat[2][1], i = mat[2][2];
+
+    var v00 = e * i - f * h, v01 = c * h - b * i, v02 = b * f - c * e, v10 = f * g - d * i, v11 = a * i - c * g, v12 = c * d - a * f, v20 = d * h - e * g, v21 = b * g - a * h, v22 = a * e - b * d;
+    var det = a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g);
+    var matInv = [[v00/det, v01/det, v02/det], [v10/det, v11/det, v12/det], [v20/det, v21/det, v22/det]];
+    return matInv;
+}
+
+function multiplyMatrixVec(mat, vec){
+    return [mat[0][0] * vec[0] + mat[0][1] * vec[1] + mat[0][2] * vec[2], mat[1][0] * vec[0] + mat[1][1] * vec[1] + mat[1][2] * vec[2], mat[2][0] * vec[0] + mat[2][1] * vec[1] + mat[2][2] * vec[2]]
+}
 
 var subtractVectors = function (v1, v2) {
     return [[v1[0] - v2[0]],
@@ -111,8 +124,8 @@ window.onload = () => {
     ctx = canvas.getContext("2d");
     
     setTimeout(() => {
-        ViewFrames();
-        //RenderFrames(1000)
+        //ViewFrames();
+        RenderFrames(1000)
     }, 1000);
 }
 
@@ -184,8 +197,10 @@ function checkIfInsideTriangle(triangle, point){
         [
             point[0], point[1], point[2]
         ]
-    var matAInv = math.inv(matA);
-    var matAns = math.multiply(matAInv, matB);
+    //var matAInv = math.inv(matA);
+    var matAInv = inverseMatrix(matA)
+    //var matAns = math.multiply(matAInv, matB);
+    var matAns = multiplyMatrixVec(matAInv, matB);
     //console.log(matA);
     //console.log(matB);
     //console.log(matAns);
@@ -198,9 +213,11 @@ function checkIfInsideTriangle(triangle, point){
 
 function draw(ctx, backgroundColor){
     console.log("Running");
+    var xlim = width / pixelSize;
+    var ylim = height / pixelSize;
     
-    for (let x = 0; x < width / pixelSize; x++) {
-        for (let y = 0; y < height / pixelSize; y++) {
+    for (let x = 0; x < xlim; x++) {
+        for (let y = 0; y < ylim; y++) {
             var possibleTriangles = [];
             var possibleLights = [];
             var isTriangle = false;
