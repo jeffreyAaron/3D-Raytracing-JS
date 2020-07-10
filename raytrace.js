@@ -48,7 +48,7 @@ var focalLength = 1;
 var camera = [200, 175, 200];
 var rot = [0, 0, 0];
 var lightVector = [0.5, -0.2, -2];
-var pixelSize = 1;
+var pixelSize = 4;
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
@@ -63,7 +63,7 @@ function inverseMatrix(mat){
     var a = mat[0][0], b = mat[0][1], c = mat[0][2], d = mat[1][0], e = mat[1][1], f = mat[1][2], g = mat[2][0], h = mat[2][1], i = mat[2][2];
 
     var v00 = e * i - f * h, v01 = c * h - b * i, v02 = b * f - c * e, v10 = f * g - d * i, v11 = a * i - c * g, v12 = c * d - a * f, v20 = d * h - e * g, v21 = b * g - a * h, v22 = a * e - b * d;
-    var det = a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g);
+    var det = round3(a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g));
     var matInv = [[v00/det, v01/det, v02/det], [v10/det, v11/det, v12/det], [v20/det, v21/det, v22/det]];
     return matInv;
 }
@@ -130,8 +130,8 @@ window.onload = () => {
     ctx = canvas.getContext("2d");
     
     setTimeout(() => {
-        //ViewFrames();
-        RenderFrames(1000)
+        ViewFrames();
+        //RenderFrames(1000)
     }, 1000);
 }
 
