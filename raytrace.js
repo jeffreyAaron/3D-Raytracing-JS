@@ -43,9 +43,9 @@ var edgeColor = "black";
 var nodeSize = 4;
 var width = 640;
 var height = 640;
-var focalLength = 10;
+var focalLength = 1;
 
-var camera = [200, 200, 200];
+var camera = [200, 175, 200];
 var rot = [0, 0, 0];
 var lightVector = [0.5, -0.2, -2];
 var pixelSize = 1;
@@ -53,6 +53,11 @@ var pixelSize = 1;
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
 };
+
+function round3(num){
+    //return Math.ceil(num);
+    return Math.ceil(num * 1000000) / 1000000;
+}
 
 function inverseMatrix(mat){
     var a = mat[0][0], b = mat[0][1], c = mat[0][2], d = mat[1][0], e = mat[1][1], f = mat[1][2], g = mat[2][0], h = mat[2][1], i = mat[2][2];
@@ -68,9 +73,7 @@ function multiplyMatrixVec(mat, vec){
 }
 
 var subtractVectors = function (v1, v2) {
-    return [[v1[0] - v2[0]],
-    [v1[1] - v2[1]],
-    [v1[2] - v2[2]]];
+    return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
 };
 
 var normaliseVector = function (v) {
@@ -92,7 +95,7 @@ var normalOfPlane = function (a) {
 
     return v3;
 };
-
+//var Vec3 = null;
 var equationOfAPlane = function (a) {
     var n1 = nodes[a[0]];
     var n2 = nodes[a[1]];
@@ -100,6 +103,8 @@ var equationOfAPlane = function (a) {
 
     var v1 = subtractVectors(n1, n2);
     var v2 = subtractVectors(n1, n3);
+    //console.log(v1);
+    //console.log(v2);
     var v31 = v1[1] * v2[2] - v1[2] * v2[1];
     var v32 = v1[2] * v2[0] - v1[0] * v2[2];
     var v33 = v1[0] * v2[1] - v1[1] * v2[0];
@@ -109,6 +114,7 @@ var equationOfAPlane = function (a) {
         v31, v32, v33, d
     ];
     //console.log(v3)
+    //Vec3 = v3;
     return v3;
 };
 
@@ -132,12 +138,12 @@ window.onload = () => {
 function ViewFrames(){
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
-    rotateY3D(0.1);
+    rotateY3D(0.02);
     draw(ctx, backgroundColor);
 
     setTimeout(() => {
         ViewFrames();
-    }, 1000/30);
+    }, 1);
 }
 
 function RenderFrames(frameCount) {
@@ -147,21 +153,21 @@ function RenderFrames(frameCount) {
         rotateY3D(0.01);
         draw(ctx, backgroundColor);
         
-        var filename = 'Frames'+frameCount+'.png'
+        var filename = 'FastFrames'+frameCount+'.png'
         document.getElementById("canvas").toBlob(function (blob) {
             saveAs(blob, filename);
         });
         
         setTimeout(() => {
             RenderFrames(frameCount-1)
-        }, 100);
+        }, 1);
     }
     
 }
 
 
-function calcIntersection(x, y, z, triangle){
-    var equation = equationOfAPlane(triangle);
+function calcIntersection(x, y, z, triangle, equation){
+    //var equation = equationOfAPlane(triangle);
     var a = equation[0];
     var b = equation[1];
     var c = equation[2];
@@ -226,7 +232,8 @@ function draw(ctx, backgroundColor){
                 var Py = pixelSize * y - camera[1]/2;
                 var Pz = focalLength;
                 var triangle = triangles[tri];
-                var intersection = calcIntersection(Px, Py, Pz, triangle);
+                var equation = equationOfAPlane(triangle);
+                var intersection = calcIntersection(Px, Py, Pz, triangle, equation);
                 //console.log(intersection);
                 if (Number.isNaN(intersection[0]) || intersection[0] === Infinity || intersection[0] === -Infinity){
                     continue;
@@ -240,7 +247,7 @@ function draw(ctx, backgroundColor){
                 var isInside = checkIfInsideTriangle(triangle, intersection);
                 //console.log(isInside);
                 if (isInside){
-                    var normalVector = normaliseVector(normalOfPlane(triangle));
+                    var normalVector = normaliseVector(equation.slice(0, 3));
                     var lightIntensity = Math.abs(dotProduct(normalVector, lightVector)) * 180;
                     var light = lightIntensity / 180;
                     
@@ -275,8 +282,8 @@ var rotateZ3D = function (theta) {
         var node = nodes[n];
         var x = node[0]-camera[0];
         var y = node[1]-camera[1];
-        node[0] = x * cosTheta - y * sinTheta + camera[0];
-        node[1] = y * cosTheta + x * sinTheta + camera[1];
+        node[0] = round3(x * cosTheta - y * sinTheta + camera[0]);
+        node[1] = round3(y * cosTheta + x * sinTheta + camera[1]);
     }
 };
 
@@ -287,8 +294,8 @@ var rotateX3D = function (theta) {
         var node = nodes[n];
         var y = node[1]-camera[1];
         var z = node[2] - camera[2];
-        node[1] = y * cosTheta - z * sinTheta + camera[1];
-        node[2] = z * cosTheta + y * sinTheta + camera[2];
+        node[1] = round3(y * cosTheta - z * sinTheta + camera[1]);
+        node[2] = round3(z * cosTheta + y * sinTheta + camera[2]);
     }
 };
 
@@ -299,7 +306,7 @@ var rotateY3D = function (theta) {
         var node = nodes[n];
         var x = node[0] - camera[0];
         var z = node[2] - camera[2];
-        node[0] = x * cosTheta + z * sinTheta + camera[0];
-        node[2] = z * cosTheta - x * sinTheta + camera[2];
+        node[0] = round3(x * cosTheta + z * sinTheta + camera[0]);
+        node[2] = round3(z * cosTheta - x * sinTheta + camera[2]);
     }
 };
