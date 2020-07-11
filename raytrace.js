@@ -370,7 +370,7 @@ function draw(ctx, backgroundColor){
                     var light1 = lightIntensity1 / 180;
                     
                     
-                    var finalLight = (1*light1 + 49*light)/50;
+                    var finalLight = (1*light1 + 35*light)/36;
                     possibleLights.push(finalLight);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
