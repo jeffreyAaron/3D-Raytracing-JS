@@ -361,11 +361,17 @@ function draw(ctx, backgroundColor){
                     var lightRange = 1000;
                     var lightIntensity = (intersection[0] - camera[0]) * (intersection[0] - camera[0]) + (intersection[1] - camera[1]) * (intersection[1] - camera[1]) + (intersection[2] - camera[2]) * (intersection[2] - camera[2]);
                     var light = (lightRange * lightRange) / (4 * 3.1415926 * lightIntensity);
-                    if (lightIntensity > lightRange * lightRange) {
-                        //light = 0;
-                    }  
-                    //console.log(light);
-                    possibleLights.push(light);
+                    
+                    var normalVector = normaliseVector(equation.slice(0, 3));
+                    var lightIntensity1 = Math.abs(dotProduct(normalVector, lightVector) * 180);
+                    if (lightIntensity1 < 0) {
+                        //lightIntensity1 = 0;
+                    }
+                    var light1 = lightIntensity1 / 180;
+                    
+                    
+                    var finalLight = (1*light1 + 49*light)/50;
+                    possibleLights.push(finalLight);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
                 }
