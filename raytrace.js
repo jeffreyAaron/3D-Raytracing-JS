@@ -326,6 +326,8 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
+
+
 function draw(ctx, backgroundColor){
     console.log("Running");
     var xlim = width / pixelSize;
@@ -356,14 +358,12 @@ function draw(ctx, backgroundColor){
                 var isInside = checkIfInsideTriangle(triangle, intersection);
                 //console.log(isInside);
                 if (isInside){
-                    var normalVector = normaliseVector(equation.slice(0, 3));
-                    var lightIntensity = dotProduct(normalVector, lightVector)*180;
-                    if (lightIntensity<0) {
-                        lightIntensity = 0;
-                    }
-                    var Tlight = lightIntensity/180;
-                    var light = Tlight*10/8+0.125;
-                    
+                    var lightRange = 1500;
+                    var lightIntensity = Math.sqrt((intersection[0] - camera[0]) * (intersection[0] - camera[0]) + (intersection[1] - camera[1]) * (intersection[1] - camera[1]) + (intersection[2] - camera[2]) * (intersection[2] - camera[2]))
+                    // if (lightIntensity>1000) {
+                    //     lightIntensity = 0;
+                    // }  
+                    var light = 1 - lightIntensity/lightRange;
                     possibleLights.push(light);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
