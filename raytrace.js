@@ -358,12 +358,13 @@ function draw(ctx, backgroundColor){
                 var isInside = checkIfInsideTriangle(triangle, intersection);
                 //console.log(isInside);
                 if (isInside){
-                    var lightRange = 1500;
-                    var lightIntensity = Math.sqrt((intersection[0] - camera[0]) * (intersection[0] - camera[0]) + (intersection[1] - camera[1]) * (intersection[1] - camera[1]) + (intersection[2] - camera[2]) * (intersection[2] - camera[2]))
-                    // if (lightIntensity>1000) {
-                    //     lightIntensity = 0;
-                    // }  
-                    var light = 1 - lightIntensity/lightRange;
+                    var lightRange = 1000;
+                    var lightIntensity = (intersection[0] - camera[0]) * (intersection[0] - camera[0]) + (intersection[1] - camera[1]) * (intersection[1] - camera[1]) + (intersection[2] - camera[2]) * (intersection[2] - camera[2]);
+                    var light = (lightRange * lightRange) / (4 * 3.1415926 * lightIntensity);
+                    if (lightIntensity > lightRange * lightRange) {
+                        //light = 0;
+                    }  
+                    //console.log(light);
                     possibleLights.push(light);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
@@ -375,8 +376,8 @@ function draw(ctx, backgroundColor){
                 var correctLight = possibleLights[possibleTriangles.indexOf(correctTriangle)];
                 var light = correctLight;
                 var r = 210 * light;
-                var g = 105 * light;
-                var b = 30 * light;
+                var g = 210 * light;
+                var b = 210 * light;
                 
                 for (let y1 = 0; y1 < pixelSize; y1++) {
                     for (let x1 = 0; x1 < pixelSize; x1++) {
