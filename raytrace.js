@@ -43,9 +43,9 @@ var edgeColor = "black";
 var nodeSize = 4;
 var width = 900;
 var height = 600;
-var focalLength = 100;
+var focalLength = 500;
 
-var camera = [250, 400, 0];
+var camera = [500, 400, 0];
 var rot = [0, 0, 0];
 var lightVector = [0, -1, -2];
 var pixelSize = 3;
