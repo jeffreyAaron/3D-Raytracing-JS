@@ -42,13 +42,16 @@ var nodeColor = "red";
 var edgeColor = "black";
 var nodeSize = 4;
 var width = 640;
-var height = 640;
+var height = 480;
 var focalLength = 1;
 
 var camera = [200, 175, 200];
 var rot = [0, 0, 0];
 var lightVector = [0.5, -0.2, -2];
 var pixelSize = 4;
+
+var pixelData = new Uint8ClampedArray(height*width*4);
+
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
@@ -140,7 +143,8 @@ function ViewFrames(){
     ctx.fillRect(0, 0, width, height);
     rotateY3D(0.02);
     draw(ctx, backgroundColor);
-
+    let imageData = new ImageData(pixelData, width, height);
+    ctx.putImageData(imageData, 0, 0);
     setTimeout(() => {
         ViewFrames();
     }, 1);
@@ -221,9 +225,9 @@ function draw(ctx, backgroundColor){
     console.log("Running");
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
-    
-    for (let x = 0; x < xlim; x++) {
-        for (let y = 0; y < ylim; y++) {
+    //var pixel = 0;
+    for (let y = 0; y < ylim; y++) {
+        for (let x = 0; x < xlim; x++) {
             var possibleTriangles = [];
             var possibleLights = [];
             var isTriangle = false;
@@ -264,11 +268,40 @@ function draw(ctx, backgroundColor){
                 var r = 10 * light;
                 var g = 120 * light;
                 var b = 255 * light;
-                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                
+                for (let y1 = 0; y1 < pixelSize; y1++) {
+                    for (let x1 = 0; x1 < pixelSize; x1++) {
+                        //console.log(y);
+                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+
+                        pixelData[index + 0] = Math.ceil(r);
+                        pixelData[index + 1] = Math.ceil(g);
+                        pixelData[index + 2] = Math.ceil(b);
+                        pixelData[index + 3] = 255;
+
+                    }
+
+                }
+                
+                //ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
 
                 //ctx.fillStyle = "blue";
-                ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                //ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+            }else{
+                for (let y1 = 0; y1 < pixelSize; y1++) {
+                    for (let x1 = 0; x1 < pixelSize; x1++) {
+                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+
+                        pixelData[index + 0] = 0;
+                        pixelData[index + 1] = 0;
+                        pixelData[index + 2] = 0;
+                        pixelData[index + 3] = 255;
+
+                    }
+
+                }
             }
+            //pixel+=4;
 
         }
         
