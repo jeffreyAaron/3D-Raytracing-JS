@@ -1,11 +1,11 @@
 var node0 = [-1000, 0, -1000];
 var node1 = [-1000, 0, 1000];
-var node2 = [-1000, 500, -1000];
-var node3 = [-1000, 500, 1000];
+var node2 = [-1000, 600, -1000];
+var node3 = [-1000, 600, 1000];
 var node4 = [1000, 0, -1000];
 var node5 = [1000, 0, 1000];
-var node6 = [1000, 500, -1000];
-var node7 = [1000, 500, 1000];
+var node6 = [1000, 600, -1000];
+var node7 = [1000, 600, 1000];
 
 var nodes = [node0, node1, node2, node3, node4, node5, node6, node7];
 
@@ -41,16 +41,16 @@ var backgroundColor = "white";
 var nodeColor = "red";
 var edgeColor = "black";
 var nodeSize = 4;
-var width = 900;
+var width = 1200;
 var height = 600;
 var focalLength = 1000;
 
 var camera = [500, 400, 500];
 var rot = [0, 0, 0];
 var lightVector = [0, -1, -2];
-var pixelSize = 3;
+var pixelSize = 4;
 
-var pixelData = new Uint8ClampedArray(height*width*4);
+var pixelData = null;
 
 
 Array.prototype.min = function () {
@@ -191,6 +191,11 @@ var ctx;
 window.onload = () => {
     var canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
+    ctx.canvas.width = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    pixelData = new Uint8ClampedArray(height * width * 4);
     
     setTimeout(() => {
         ViewFrames();
@@ -333,6 +338,7 @@ function draw(ctx, backgroundColor){
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
     //var pixel = 0;
+    var lightRange = 1500 + 0 * Math.random();
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
             var possibleTriangles = [];
@@ -358,7 +364,7 @@ function draw(ctx, backgroundColor){
                 var isInside = checkIfInsideTriangle(triangle, intersection);
                 //console.log(isInside);
                 if (isInside){
-                    var lightRange = 1000;
+                    
                     var lightIntensity = (intersection[0] - camera[0]) * (intersection[0] - camera[0]) + (intersection[1] - camera[1]) * (intersection[1] - camera[1]) + (intersection[2] - camera[2]) * (intersection[2] - camera[2]);
                     var light = (lightRange * lightRange) / (4 * 3.1415926 * lightIntensity);
                     
@@ -370,7 +376,8 @@ function draw(ctx, backgroundColor){
                     var light1 = lightIntensity1 / 180;
                     
                     
-                    var finalLight = (1*light1 + 35*light)/36;
+                    var finalLight = (1*light1 + 29*light)/30;
+                    //var finalLight = (0 * light1 + 30 * light) / 30;
                     possibleLights.push(finalLight);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
