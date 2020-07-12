@@ -322,8 +322,8 @@ function draw(){
     var lightRange = Math.pow(1500,2);
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
-            var possibleTriangles = [];
-            var possibleLights = [];
+            var triangleToRender = Math.Infinity;
+            var lightToRender;
             var isTriangle = false;
             for (let tri = 0; tri < triangles.length; tri++) {
                 var Px = pixelSize * x - camera[0]/2;
@@ -356,20 +356,20 @@ function draw(){
                     
                     
                     var FinalLight = (1 * PointLight + 29 * Spherelight) / 30;
-                    //var finalLight = (0 * light1 + 30 * light) / 30;
-                    possibleLights.push(FinalLight);
-                    possibleTriangles.push(intersection[3]);
-                    isTriangle = true;
+                    if(triangleToRender < intersection[3]){
+                        lightToRender = FinalLight;
+                        triangleToRender = intersection[3];
+                        isTriangle = true;
+                    }
                 }
                 
             }
             if (isTriangle){
-                var correctTriangle = possibleTriangles.min();
-                var correctLight = possibleLights[possibleTriangles.indexOf(correctTriangle)];
-                var light = correctLight;
-                var r = 210 * light;
-                var g = 210 * light;
-                var b = 210 * light;
+                //var correctTriangle = possibleTriangles.min();
+                //var correctLight = possibleLights[possibleTriangles.indexOf(correctTriangle)];
+                var r = 210 * lightToRender;
+                var g = 210 * lightToRender;
+                var b = 210 * lightToRender;
                 
                 for (let y1 = 0; y1 < pixelSize; y1++) {
                     for (let x1 = 0; x1 < pixelSize; x1++) {
