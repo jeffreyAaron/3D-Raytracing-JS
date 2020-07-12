@@ -229,6 +229,8 @@ function UpdatePlayerMovement(){
     }
 }
 
+
+
 function ViewFrames(){
     UpdatePlayerMovement();
     draw();
@@ -344,20 +346,18 @@ function draw(){
                 //console.log(isInside);
                 if (isInside){
                     
-                    var lightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
-                    var light = lightRange / (4 * 3.14 * lightIntensity);
+                    var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
+                    var Spherelight = lightRange / (4 * 3.14 * SphereLightIntensity);
                     
-                    var normalVector = normaliseVector(equation.slice(0, 3));
-                    var lightIntensity1 = Math.abs(dotProduct(normalVector, lightVector) * 180);
-                    if (lightIntensity1 < 0) {
-                        //lightIntensity1 = 0;
-                    }
-                    var light1 = lightIntensity1 / 180;
+                    var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                    var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector) * 180);
+                    
+                    var PointLight = PointLightIntensity / 180;
                     
                     
-                    var finalLight = (1*light1 + 29*light)/30;
+                    var FinalLight = (1 * PointLight + 29 * Spherelight) / 30;
                     //var finalLight = (0 * light1 + 30 * light) / 30;
-                    possibleLights.push(finalLight);
+                    possibleLights.push(FinalLight);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
                 }
