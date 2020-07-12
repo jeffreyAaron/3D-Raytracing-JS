@@ -6,8 +6,17 @@ var node4 = [1000, 0, -1000];
 var node5 = [1000, 0, 1000];
 var node6 = [1000, 600, -1000];
 var node7 = [1000, 600, 1000];
+// Second Cube
+var node8 = [10, 0, -500];
+var node9 = [10, 0, 510];
+var node10 = [10, 100, -500];
+var node11 = [10, 100, 510];
+var node12 = [-500, 0, -500];
+var node13 = [-500, 0, 510];
+var node14 = [-500, 100, -500];
+var node15 = [-500, 100, 510];
 
-var nodes = [node0, node1, node2, node3, node4, node5, node6, node7];
+var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15];
 
 // var edge0 = [0, 1];
 // var edge1 = [1, 3];
@@ -35,7 +44,47 @@ var tri8 = [0, 3, 2];
 var tri9 = [3, 0, 1];
 var tri10 = [7, 6, 3];
 var tri11 = [2, 3, 6];
-var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11];
+
+var tri12 = [4 + 8, 0 + 8, 2 + 8];
+var tri13 = [4 + 8, 2 + 8, 6 + 8];
+var tri14 = [7 + 8, 4 + 8, 6 + 8];
+var tri15 = [4 + 8, 7 + 8, 5 + 8];
+var tri16 = [5 + 8, 7 + 8, 1 + 8];
+var tri17 = [3 + 8, 1 + 8, 7 + 8];
+var tri18 = [0 + 8, 4 + 8, 1 + 8];
+var tri19 = [4 + 8, 5 + 8, 1 + 8];
+var tri20 = [0 + 8, 3 + 8, 2 + 8];
+var tri21 = [3 + 8, 0 + 8, 1 + 8];
+var tri22 = [7 + 8, 6 + 8, 3 + 8];
+var tri23 = [2 + 8, 3 + 8, 6 + 8];
+
+var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11, tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+
+var room = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11];
+var platform = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+
+var roomData = {
+    color: {
+        r: 210,
+        g: 210,
+        b: 210
+    },
+    collide:false
+}
+var platformData = {
+    color: {
+        r: 66,
+        g: 135,
+        b: 245
+    },
+    collide: true,
+    
+}
+
+var collided = false;
+
+var objects = [room, platform];
+var objectData = [roomData, platformData]
 
 var backgroundColor = "white";
 var nodeColor = "red";
@@ -234,6 +283,13 @@ function UpdatePlayerMovement(){
 function ViewFrames(){
     UpdatePlayerMovement();
     draw();
+    if(collided){
+        console.log("hit");
+        camera[2] -= velz;
+        camera[1] -= vely;
+        velz = 0;
+        vely = 0;
+    }
     ctx.clearRect(0, 0, width, height);
     let imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
@@ -299,14 +355,8 @@ function checkIfInsideTriangle(triangle, point){
         [
             point[0], point[1], point[2]
         ]
-    //var matAInv = math.inv(matA);
-    var matAInv = inverseMatrix(matA)
-    //var matAns = math.multiply(matAInv, matB);
+    var matAInv = inverseMatrix(matA);
     var matAns = multiplyMatrixVec(matAInv, matB);
-    //console.log(matA);
-    //console.log(matB);
-    //console.log(matAns);
-
     if (matAns[0] < 0 || matAns[1] < 0 || matAns[2] < 0){
         return false;
     }
@@ -316,97 +366,315 @@ function checkIfInsideTriangle(triangle, point){
 
 
 function draw(){
-    //console.log("Running");
+    collided = false;
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
     var lightRange = Math.pow(1500,2);
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
-            var triangleToRender = Math.Infinity;
-            var lightToRender;
-            var isTriangle = false;
-            for (let tri = 0; tri < triangles.length; tri++) {
-                var Px = pixelSize * x - camera[0]/2;
-                var Py = pixelSize * y - camera[1]/2;
-                var Pz = focalLength;
-                var triangle = triangles[tri];
-                var equation = equationOfAPlane(triangle);
-                var intersection = calcIntersection(Px, Py, Pz, triangle, equation);
-                //console.log(intersection);
-                if (Number.isNaN(intersection[0]) || intersection[0] === Infinity || intersection[0] === -Infinity){
-                    continue;
-                }
-                if (Number.isNaN(intersection[1]) || intersection[1] === Infinity || intersection[1] === -Infinity) {
-                    continue;
-                }
-                if (Number.isNaN(intersection[2]) || intersection[2] === Infinity || intersection[2] === -Infinity) {
-                    continue;
-                }
-                var isInside = checkIfInsideTriangle(triangle, intersection);
-                //console.log(isInside);
-                if (isInside){
-                    
-                    var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
-                    var Spherelight = lightRange / (4 * 3.14 * SphereLightIntensity);
-                    
-                    var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
-                    var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector) * 180);
-                    
-                    var PointLight = PointLightIntensity / 180;
-                    
-                    
-                    var FinalLight = (1 * PointLight + 29 * Spherelight) / 30;
-                    if(triangleToRender < intersection[3]){
-                        lightToRender = FinalLight;
-                        triangleToRender = intersection[3];
-                        isTriangle = true;
+                var triangleToRender = 10000000000;
+                var lightToRender;
+                var isTriangle = false;
+                for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+                    const object = objects[objectIndex];
+                    var objectDat = objectData[objectIndex];
+                    for (let tri = 0; tri < object.length; tri++) {
+                        var Px = pixelSize * x - camera[0]/2;
+                        var Py = pixelSize * y - camera[1]/2;
+                        var Pz = focalLength;
+                        var triangle = object[tri];
+                        var equation = equationOfAPlane(triangle);
+                        var intersection = calcIntersection(Px, Py, Pz, triangle, equation);
+                        //console.log(intersection);
+                        if (Number.isNaN(intersection[0]) || intersection[0] === Infinity || intersection[0] === -Infinity){
+                            continue;
+                        }
+                        if (Number.isNaN(intersection[1]) || intersection[1] === Infinity || intersection[1] === -Infinity) {
+                            continue;
+                        }
+                        if (Number.isNaN(intersection[2]) || intersection[2] === Infinity || intersection[2] === -Infinity) {
+                            continue;
+                        }
+                        var isInside = checkIfInsideTriangle(triangle, intersection);
+                        
+                        if (isInside){
+                            
+                            var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
+                            if(Math.sqrt(SphereLightIntensity) < 200){
+                                //collided = true;
+                            }
+                            var Spherelight = lightRange / (4 * 3.14 * SphereLightIntensity);
+                            
+                            var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                            var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector) * 180);
+                            
+                            var PointLight = PointLightIntensity / 180;
+                            
+                            
+                            var FinalLight = (1 * PointLight + 29 * Spherelight) / 30;
+                            var FinalRGB = [objectDat.color.r * FinalLight, objectDat.color.g * FinalLight, objectDat.color.b * FinalLight]
+                            if (Math.abs(triangleToRender) > Math.abs(intersection[3])) {
+                            
+                                lightToRender = FinalRGB;
+                                triangleToRender = Math.abs(intersection[3]);
+                                isTriangle = true;
+                            }
+                        }
+                        
                     }
                 }
-                
-            }
-            if (isTriangle){
-                //var correctTriangle = possibleTriangles.min();
-                //var correctLight = possibleLights[possibleTriangles.indexOf(correctTriangle)];
-                var r = 210 * lightToRender;
-                var g = 210 * lightToRender;
-                var b = 210 * lightToRender;
-                
-                for (let y1 = 0; y1 < pixelSize; y1++) {
-                    for (let x1 = 0; x1 < pixelSize; x1++) {
-                        //console.log(y);
-                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                    if (isTriangle){
+                        
+                        var r = lightToRender[0];
+                        var g = lightToRender[1];
+                        var b = lightToRender[2];
 
-                        pixelData[index + 0] = Math.round(r);
-                        pixelData[index + 1] = Math.round(g);
-                        pixelData[index + 2] = Math.round(b);
+                        var yTemp = y * pixelSize;
+                        var xTemp = x * pixelSize;
+
+                        var index = 0;
+                        //
+                        index = (yTemp* width + xTemp) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
                         pixelData[index + 3] = 255;
 
-                    }
-
-                }
-                
-                //ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-
-                //ctx.fillStyle = "blue";
-                //ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
-            }else{
-                for (let y1 = 0; y1 < pixelSize; y1++) {
-                    for (let x1 = 0; x1 < pixelSize; x1++) {
-                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
-
-                        pixelData[index + 0] = 255;
-                        pixelData[index + 1] = 255;
-                        pixelData[index + 2] = 255;
+                        index = (yTemp * width + (xTemp + 1)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
                         pixelData[index + 3] = 255;
 
+                        index = (yTemp * width + (xTemp + 2)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = (yTemp * width + (xTemp + 3)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        //
+                        index = ((yTemp + 1) * width + xTemp ) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 1) * width + (xTemp + 3)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        //
+                        index = ((yTemp + 2) * width + xTemp) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 2) * width + (xTemp + 3)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        //
+                        index = ((yTemp + 3) * width + xTemp) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 3) * width + (xTemp + 1)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 3) * width + (xTemp + 2)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 3) * width + (xTemp + 3)) * 4;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+                        
+                        // for (let y1 = 0; y1 < pixelSize; y1++) {
+                        //     for (let x1 = 0; x1 < pixelSize; x1++) {
+                                
+                        //         var index = ((yTemp + y1) * width + (xTemp + x1)) * 4;
+
+                        //         pixelData[index + 0] = Math.round(r);
+                        //         pixelData[index + 1] = Math.round(g);
+                        //         pixelData[index + 2] = Math.round(b);
+                        //         pixelData[index + 3] = 255;
+
+                        //     }
+
+                        // }
+                        
+                    }else{
+
+                        var r = 255;
+                        var g = 255;
+                        var b = 255;
+
+                        var yTemp = y * pixelSize;
+                        var xTemp = x * pixelSize;
+
+                        var index = 0;
+
+                        //
+                        index = (yTemp * width + xTemp) * 4;
+                        pixelData[index ] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = (yTemp * width + (xTemp + 1)) * 4;
+                        pixelData[index ] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = (yTemp * width + (xTemp + 2)) * 4;
+                        pixelData[index ] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = (yTemp * width + (xTemp + 3)) * 4;
+                        pixelData[index ] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        //
+                        index = ((yTemp + 1) * width + xTemp) * 4;
+                        pixelData[index ] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
+                        pixelData[index ] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 1) * width + (xTemp + 3)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        //
+                        index = ((yTemp + 2) * width + xTemp) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 2) * width + (xTemp + 3)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        //
+                        index = ((yTemp + 3) * width + xTemp) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 3) * width + (xTemp + 1)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 3) * width + (xTemp + 2)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        index = ((yTemp + 3) * width + (xTemp + 3)) * 4;
+                        pixelData[index] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
+
+                        // for (let y1 = 0; y1 < pixelSize; y1++) {
+                        //     for (let x1 = 0; x1 < pixelSize; x1++) {
+                        //         var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+
+                        //         pixelData[index + 0] = 255;
+                        //         pixelData[index + 1] = 255;
+                        //         pixelData[index + 2] = 255;
+                        //         pixelData[index + 3] = 255;
+
+                        //     }
+
+                        // }
                     }
+            
 
-                }
-            }
-            //pixel+=4;
-
-        }
         
+    }
     }
 }
 
@@ -432,11 +700,7 @@ var rotateX3D = function (theta) {
         node[1] = round3(y * cosTheta - z * sinTheta + camera[1]);
         node[2] = round3(z * cosTheta + y * sinTheta + camera[2]);
     }
-    // var y = lightVector[1]
-    // var z = lightVector[2];
-    // lightVector[1] = round3(y * cosTheta - z * sinTheta );
-    // lightVector[2] = round3(z * cosTheta + y * sinTheta );
-    // lightVector = normaliseVector(lightVector);
+    
 };
 
 var rotateY3D = function (theta) {
@@ -449,10 +713,5 @@ var rotateY3D = function (theta) {
         node[0] = round3(x * cosTheta + z * sinTheta + camera[0]);
         node[2] = round3(z * cosTheta - x * sinTheta + camera[2]);
     }
-    // var x = lightVector[0]
-    // var z = lightVector[2];
-    // lightVector[0] = round3(x * cosTheta + z * sinTheta);
-    // lightVector[2] = round3(z * cosTheta - x * sinTheta);
-
-    // lightVector = normaliseVector(lightVector);
+   
 };
