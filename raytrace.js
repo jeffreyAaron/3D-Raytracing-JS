@@ -40,8 +40,8 @@ var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri
 var backgroundColor = "white";
 var nodeColor = "red";
 var edgeColor = "black";
-var nodeSize = 4;
-var width = 1200;
+var nodeSize = 5;
+var width = 900;
 var height = 600;
 var focalLength = 1000;
 
@@ -58,12 +58,12 @@ Array.prototype.min = function () {
 };
 
 function round3(num){
-    //return Math.ceil(num);
-    return Math.ceil(num * 1000000) / 1000000;
+    
+    return (Math.ceil(num * 1000000) / 1000000);
 }
 
 function inverseMatrix(mat){
-    var a = mat[0][0], b = mat[0][1], c = mat[0][2], d = mat[1][0], e = mat[1][1], f = mat[1][2], g = mat[2][0], h = mat[2][1], i = mat[2][2];
+    var a = round3(mat[0][0]), b = round3(mat[0][1]), c = round3(mat[0][2]), d = round3(mat[1][0]), e = round3(mat[1][1]), f = round3(mat[1][2]), g = round3(mat[2][0]), h = round3(mat[2][1]), i = round3(mat[2][2]);
 
     var v00 = e * i - f * h, v01 = c * h - b * i, v02 = b * f - c * e, v10 = f * g - d * i, v11 = a * i - c * g, v12 = c * d - a * f, v20 = d * h - e * g, v21 = b * g - a * h, v22 = a * e - b * d;
     var det = round3(a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g));
@@ -83,22 +83,6 @@ var normaliseVector = function (v) {
     var d = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     return [v[0] / d, v[1] / d, v[2] / d];
 };
-
-var normalOfPlane = function (a) {
-    var n1 = nodes[a[0]];
-    var n2 = nodes[a[1]];
-    var n3 = nodes[a[2]];
-
-    var v1 = subtractVectors(n1, n2);
-    var v2 = subtractVectors(n1, n3);
-
-    var v3 = [[v1[1] * v2[2] - v1[2] * v2[1]],
-    [v1[2] * v2[0] - v1[0] * v2[2]],
-    [v1[0] * v2[1] - v1[1] * v2[0]]];
-
-    return v3;
-};
-//var Vec3 = null;
 var equationOfAPlane = function (a) {
     var n1 = nodes[a[0]];
     var n2 = nodes[a[1]];
@@ -116,16 +100,11 @@ var equationOfAPlane = function (a) {
     var v3 = [
         v31, v32, v33, d
     ];
-    //console.log(v3)
-    //Vec3 = v3;
     return v3;
 };
-
 var dotProduct = function (v1, v2) {
-    // Assume everything has 3 dimensions
-    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+    return round3(v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]);
 };
-
 var movement = {
     up: false,
     down: false,
@@ -135,7 +114,6 @@ var movement = {
     lookDown: false,
     jump: false
 }
-
 document.addEventListener('keydown', function (event) {
     switch (event.keyCode) {
         case 65: // A
@@ -191,10 +169,10 @@ var ctx;
 window.onload = () => {
     var canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
-    ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = window.innerHeight;
-    width = window.innerWidth;
-    height = window.innerHeight;
+    //ctx.canvas.width = window.innerWidth;
+    //ctx.canvas.height = window.innerHeight;
+    //width = window.innerWidth;
+    //height = window.innerHeight;
     pixelData = new Uint8ClampedArray(height * width * 4);
     
     setTimeout(() => {
@@ -213,25 +191,26 @@ var velRotYConstant = 0.9;
 var velRotXConstant = 0.85;
 var totalRotX = 0.001;
 
-function ViewFrames(){
-    if(camera[1]>250){
-        vely -=3;
+function UpdatePlayerMovement(){
+    if (camera[1] > 250) {
+        vely -= 3;
     }
-    
-    if(movement.down){
+    if (movement.down) {
         velz += 0.5;
-    } if(movement.up) {
+    } else if (movement.up) {
         velz -= 0.5;
     } if (movement.left) {
         velRotY += 0.005;
-    } if (movement.right) {
+    } else if (movement.right) {
         velRotY -= 0.005;
     } if (movement.lookUp) {
         velRotX -= 0.005;
-    } if (movement.lookDown) {
+    } else if (movement.lookDown) {
         velRotX += 0.005;
     } if (movement.jump) {
-        vely += 16;
+        if (camera[1] === 250){
+            vely += 23;
+        }
         movement.jump = false;
     }
     vely *= velYConstant;
@@ -241,22 +220,23 @@ function ViewFrames(){
     totalRotX += velRotX;
     rotateX3D(-totalRotX);
     rotateY3D(velRotY);
-    rotateX3D(totalRotX);
-    rotateX3D(velRotX);
+    rotateX3D(totalRotX + velRotX);
+    //rotateX3D(velRotX);
     camera[2] += velz;
     camera[1] += vely;
     if (camera[1] < 250) {
         camera[1] = 250;
     }
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
-    
-    draw(ctx, backgroundColor);
+}
+
+function ViewFrames(){
+    UpdatePlayerMovement();
+    draw();
+    ctx.clearRect(0, 0, width, height);
     let imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-    setTimeout(() => {
-        ViewFrames();
-    }, 1);
+    
+    requestAnimationFrame(ViewFrames);
 }
 
 function RenderFrames(frameCount) {
@@ -333,12 +313,11 @@ function checkIfInsideTriangle(triangle, point){
 
 
 
-function draw(ctx, backgroundColor){
-    console.log("Running");
+function draw(){
+    //console.log("Running");
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
-    //var pixel = 0;
-    var lightRange = 1500 + 0 * Math.random();
+    var lightRange = Math.pow(1500,2);
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
             var possibleTriangles = [];
@@ -365,8 +344,8 @@ function draw(ctx, backgroundColor){
                 //console.log(isInside);
                 if (isInside){
                     
-                    var lightIntensity = (intersection[0] - camera[0]) * (intersection[0] - camera[0]) + (intersection[1] - camera[1]) * (intersection[1] - camera[1]) + (intersection[2] - camera[2]) * (intersection[2] - camera[2]);
-                    var light = (lightRange * lightRange) / (4 * 3.1415926 * lightIntensity);
+                    var lightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
+                    var light = lightRange / (4 * 3.14 * lightIntensity);
                     
                     var normalVector = normaliseVector(equation.slice(0, 3));
                     var lightIntensity1 = Math.abs(dotProduct(normalVector, lightVector) * 180);
@@ -397,9 +376,9 @@ function draw(ctx, backgroundColor){
                         //console.log(y);
                         var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
-                        pixelData[index + 0] = Math.ceil(r);
-                        pixelData[index + 1] = Math.ceil(g);
-                        pixelData[index + 2] = Math.ceil(b);
+                        pixelData[index + 0] = Math.round(r);
+                        pixelData[index + 1] = Math.round(g);
+                        pixelData[index + 2] = Math.round(b);
                         pixelData[index + 3] = 255;
 
                     }
