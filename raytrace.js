@@ -1,11 +1,11 @@
-var node0 = [100, 100, 100];
-var node1 = [100, 100, 300];
-var node2 = [100, 300, 100];
-var node3 = [100, 300, 300];
-var node4 = [300, 100, 100];
-var node5 = [300, 100, 300];
-var node6 = [300, 300, 100];
-var node7 = [300, 300, 300];
+var node0 = [-1000, 0, -1000];
+var node1 = [-1000, 0, 1000];
+var node2 = [-1000, 600, -1000];
+var node3 = [-1000, 600, 1000];
+var node4 = [1000, 0, -1000];
+var node5 = [1000, 0, 1000];
+var node6 = [1000, 600, -1000];
+var node7 = [1000, 600, 1000];
 
 var nodes = [node0, node1, node2, node3, node4, node5, node6, node7];
 
@@ -33,34 +33,37 @@ var tri6 = [0, 4, 1];
 var tri7 = [4, 5, 1];
 var tri8 = [0, 3, 2];
 var tri9 = [3, 0, 1];
-var tri10 = [6, 7, 3];
+var tri10 = [7, 6, 3];
 var tri11 = [2, 3, 6];
 var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11];
 
 var backgroundColor = "white";
 var nodeColor = "red";
 var edgeColor = "black";
-var nodeSize = 4;
-var width = 640;
-var height = 640;
-var focalLength = 1;
+var nodeSize = 5;
+var width = 900;
+var height = 600;
+var focalLength = 1000;
 
-var camera = [200, 175, 200];
+var camera = [500, 400, 500];
 var rot = [0, 0, 0];
-var lightVector = [0.5, -0.2, -2];
+var lightVector = [0, -1, -2];
 var pixelSize = 4;
+
+var pixelData = null;
+
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
 };
 
 function round3(num){
-    //return Math.ceil(num);
-    return Math.ceil(num * 1000000) / 1000000;
+    
+    return (Math.ceil(num * 1000000) / 1000000);
 }
 
 function inverseMatrix(mat){
-    var a = mat[0][0], b = mat[0][1], c = mat[0][2], d = mat[1][0], e = mat[1][1], f = mat[1][2], g = mat[2][0], h = mat[2][1], i = mat[2][2];
+    var a = round3(mat[0][0]), b = round3(mat[0][1]), c = round3(mat[0][2]), d = round3(mat[1][0]), e = round3(mat[1][1]), f = round3(mat[1][2]), g = round3(mat[2][0]), h = round3(mat[2][1]), i = round3(mat[2][2]);
 
     var v00 = e * i - f * h, v01 = c * h - b * i, v02 = b * f - c * e, v10 = f * g - d * i, v11 = a * i - c * g, v12 = c * d - a * f, v20 = d * h - e * g, v21 = b * g - a * h, v22 = a * e - b * d;
     var det = round3(a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g));
@@ -80,22 +83,6 @@ var normaliseVector = function (v) {
     var d = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     return [v[0] / d, v[1] / d, v[2] / d];
 };
-
-var normalOfPlane = function (a) {
-    var n1 = nodes[a[0]];
-    var n2 = nodes[a[1]];
-    var n3 = nodes[a[2]];
-
-    var v1 = subtractVectors(n1, n2);
-    var v2 = subtractVectors(n1, n3);
-
-    var v3 = [[v1[1] * v2[2] - v1[2] * v2[1]],
-    [v1[2] * v2[0] - v1[0] * v2[2]],
-    [v1[0] * v2[1] - v1[1] * v2[0]]];
-
-    return v3;
-};
-//var Vec3 = null;
 var equationOfAPlane = function (a) {
     var n1 = nodes[a[0]];
     var n2 = nodes[a[1]];
@@ -113,21 +100,80 @@ var equationOfAPlane = function (a) {
     var v3 = [
         v31, v32, v33, d
     ];
-    //console.log(v3)
-    //Vec3 = v3;
     return v3;
 };
-
 var dotProduct = function (v1, v2) {
-    // Assume everything has 3 dimensions
-    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+    return round3(v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]);
 };
+var movement = {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    lookUp: false,
+    lookDown: false,
+    jump: false
+}
+document.addEventListener('keydown', function (event) {
+    switch (event.keyCode) {
+        case 65: // A
+            movement.left = true;
+            break;
+        case 87: // W
+            movement.up = true;
+            break;
+        case 83: // S
+            movement.down = true;
+            break;
+        case 68: // D
+            movement.right = true;
+            break;
+        case 38: // Up
+            movement.lookUp = true;
+            break;
+
+        case 40: // Down
+            movement.lookDown = true;
+            break;
+    }
+});
+document.addEventListener('keyup', function (event) {
+    switch (event.keyCode) {
+        case 65: // A
+            movement.left = false;
+            break;
+        case 87: // W
+            movement.up = false;
+            break;
+        case 68: // D
+            movement.right = false;
+            break;
+        case 83: // S
+            movement.down = false;
+            break;
+        case 38: // Up
+            movement.lookUp = false;
+            break;
+
+        case 40: // Down
+            movement.lookDown = false;
+            break;
+        case 32: // SpaceBar
+            movement.jump = true;
+            break;
+    }
+});
 
 lightVector = normaliseVector(lightVector);
 var ctx;
 window.onload = () => {
     var canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
+    //ctx.canvas.width = window.innerWidth;
+    //ctx.canvas.height = window.innerHeight;
+    //width = window.innerWidth;
+    //height = window.innerHeight;
+    pixelData = new Uint8ClampedArray(height * width * 4);
     
     setTimeout(() => {
         ViewFrames();
@@ -135,15 +181,62 @@ window.onload = () => {
     }, 1000);
 }
 
-function ViewFrames(){
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, width, height);
-    rotateY3D(0.02);
-    draw(ctx, backgroundColor);
+var velz = 0;
+var vely = 0;
+var velRotY = 0;
+var velRotX = 0;
+var velZConstant = 0.85;
+var velYConstant = 0.9;
+var velRotYConstant = 0.9;
+var velRotXConstant = 0.85;
+var totalRotX = 0.001;
 
-    setTimeout(() => {
-        ViewFrames();
-    }, 1);
+function UpdatePlayerMovement(){
+    if (camera[1] > 250) {
+        vely -= 3;
+    }
+    if (movement.down) {
+        velz += 0.5;
+    } else if (movement.up) {
+        velz -= 0.5;
+    } if (movement.left) {
+        velRotY += 0.005;
+    } else if (movement.right) {
+        velRotY -= 0.005;
+    } if (movement.lookUp) {
+        velRotX -= 0.005;
+    } else if (movement.lookDown) {
+        velRotX += 0.005;
+    } if (movement.jump) {
+        if (camera[1] === 250){
+            vely += 23;
+        }
+        movement.jump = false;
+    }
+    vely *= velYConstant;
+    velRotY *= velRotYConstant;
+    velz *= velZConstant;
+    velRotX *= velRotXConstant;
+    totalRotX += velRotX;
+    rotateX3D(-totalRotX);
+    rotateY3D(velRotY);
+    rotateX3D(totalRotX + velRotX);
+    //rotateX3D(velRotX);
+    camera[2] += velz;
+    camera[1] += vely;
+    if (camera[1] < 250) {
+        camera[1] = 250;
+    }
+}
+
+function ViewFrames(){
+    UpdatePlayerMovement();
+    draw();
+    ctx.clearRect(0, 0, width, height);
+    let imageData = new ImageData(pixelData, width, height);
+    ctx.putImageData(imageData, 0, 0);
+    
+    requestAnimationFrame(ViewFrames);
 }
 
 function RenderFrames(frameCount) {
@@ -152,7 +245,8 @@ function RenderFrames(frameCount) {
         ctx.fillRect(0, 0, width, height);
         rotateY3D(0.01);
         draw(ctx, backgroundColor);
-        
+        let imageData = new ImageData(pixelData, width, height);
+        ctx.putImageData(imageData, 0, 0);
         var filename = 'FastFrames'+frameCount+'.png'
         document.getElementById("canvas").toBlob(function (blob) {
             saveAs(blob, filename);
@@ -217,13 +311,15 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
-function draw(ctx, backgroundColor){
-    console.log("Running");
+
+
+function draw(){
+    //console.log("Running");
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
-    
-    for (let x = 0; x < xlim; x++) {
-        for (let y = 0; y < ylim; y++) {
+    var lightRange = Math.pow(1500,2);
+    for (let y = 0; y < ylim; y++) {
+        for (let x = 0; x < xlim; x++) {
             var possibleTriangles = [];
             var possibleLights = [];
             var isTriangle = false;
@@ -247,11 +343,21 @@ function draw(ctx, backgroundColor){
                 var isInside = checkIfInsideTriangle(triangle, intersection);
                 //console.log(isInside);
                 if (isInside){
-                    var normalVector = normaliseVector(equation.slice(0, 3));
-                    var lightIntensity = Math.abs(dotProduct(normalVector, lightVector)) * 180;
-                    var light = lightIntensity / 180;
                     
-                    possibleLights.push(light);
+                    var lightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
+                    var light = lightRange / (4 * 3.14 * lightIntensity);
+                    
+                    var normalVector = normaliseVector(equation.slice(0, 3));
+                    var lightIntensity1 = Math.abs(dotProduct(normalVector, lightVector) * 180);
+                    if (lightIntensity1 < 0) {
+                        //lightIntensity1 = 0;
+                    }
+                    var light1 = lightIntensity1 / 180;
+                    
+                    
+                    var finalLight = (1*light1 + 29*light)/30;
+                    //var finalLight = (0 * light1 + 30 * light) / 30;
+                    possibleLights.push(finalLight);
                     possibleTriangles.push(intersection[3]);
                     isTriangle = true;
                 }
@@ -261,14 +367,43 @@ function draw(ctx, backgroundColor){
                 var correctTriangle = possibleTriangles.min();
                 var correctLight = possibleLights[possibleTriangles.indexOf(correctTriangle)];
                 var light = correctLight;
-                var r = 10 * light;
-                var g = 120 * light;
-                var b = 255 * light;
-                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                var r = 210 * light;
+                var g = 210 * light;
+                var b = 210 * light;
+                
+                for (let y1 = 0; y1 < pixelSize; y1++) {
+                    for (let x1 = 0; x1 < pixelSize; x1++) {
+                        //console.log(y);
+                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+
+                        pixelData[index + 0] = Math.round(r);
+                        pixelData[index + 1] = Math.round(g);
+                        pixelData[index + 2] = Math.round(b);
+                        pixelData[index + 3] = 255;
+
+                    }
+
+                }
+                
+                //ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
 
                 //ctx.fillStyle = "blue";
-                ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                //ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+            }else{
+                for (let y1 = 0; y1 < pixelSize; y1++) {
+                    for (let x1 = 0; x1 < pixelSize; x1++) {
+                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+
+                        pixelData[index + 0] = 255;
+                        pixelData[index + 1] = 255;
+                        pixelData[index + 2] = 255;
+                        pixelData[index + 3] = 255;
+
+                    }
+
+                }
             }
+            //pixel+=4;
 
         }
         
@@ -297,6 +432,11 @@ var rotateX3D = function (theta) {
         node[1] = round3(y * cosTheta - z * sinTheta + camera[1]);
         node[2] = round3(z * cosTheta + y * sinTheta + camera[2]);
     }
+    // var y = lightVector[1]
+    // var z = lightVector[2];
+    // lightVector[1] = round3(y * cosTheta - z * sinTheta );
+    // lightVector[2] = round3(z * cosTheta + y * sinTheta );
+    // lightVector = normaliseVector(lightVector);
 };
 
 var rotateY3D = function (theta) {
@@ -309,4 +449,10 @@ var rotateY3D = function (theta) {
         node[0] = round3(x * cosTheta + z * sinTheta + camera[0]);
         node[2] = round3(z * cosTheta - x * sinTheta + camera[2]);
     }
+    // var x = lightVector[0]
+    // var z = lightVector[2];
+    // lightVector[0] = round3(x * cosTheta + z * sinTheta);
+    // lightVector[2] = round3(z * cosTheta - x * sinTheta);
+
+    // lightVector = normaliseVector(lightVector);
 };
