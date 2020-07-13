@@ -7,14 +7,14 @@ var node5 = [1000, 0, 1000];
 var node6 = [1000, 600, -1000];
 var node7 = [1000, 600, 1000];
 // Second Cube
-var node8 = [10, 0, -500];
-var node9 = [10, 0, 510];
-var node10 = [10, 100, -500];
-var node11 = [10, 100, 510];
-var node12 = [-500, 0, -500];
-var node13 = [-500, 0, 510];
-var node14 = [-500, 100, -500];
-var node15 = [-500, 100, 510];
+var node8 = [10, 50, -500];
+var node9 = [10, 50, 510];
+var node10 = [10, 150, -500];
+var node11 = [10, 150, 510];
+var node12 = [-500, 50, -500];
+var node13 = [-500, 50, 510];
+var node14 = [-500, 150, -500];
+var node15 = [-500, 150, 510];
 
 var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15];
 
@@ -92,7 +92,7 @@ var edgeColor = "black";
 var nodeSize = 5;
 var width = 900;
 var height = 600;
-var focalLength = 1000;
+var focalLength = -1000;
 
 var camera = [500, 400, 500];
 var rot = [0, 0, 0];
@@ -239,6 +239,7 @@ var velYConstant = 0.9;
 var velRotYConstant = 0.9;
 var velRotXConstant = 0.85;
 var totalRotX = 0.001;
+var totalRotY = 0.001;
 
 function UpdatePlayerMovement(){
     if (camera[1] > 250) {
@@ -249,13 +250,13 @@ function UpdatePlayerMovement(){
     } else if (movement.up) {
         velz -= 0.5;
     } if (movement.left) {
-        velRotY += 0.005;
-    } else if (movement.right) {
         velRotY -= 0.005;
+    } else if (movement.right) {
+        velRotY += 0.005;
     } if (movement.lookUp) {
-        velRotX -= 0.005;
-    } else if (movement.lookDown) {
         velRotX += 0.005;
+    } else if (movement.lookDown) {
+        velRotX -= 0.005;
     } if (movement.jump) {
         if (camera[1] === 250){
             vely += 23;
@@ -267,9 +268,10 @@ function UpdatePlayerMovement(){
     velz *= velZConstant;
     velRotX *= velRotXConstant;
     totalRotX += velRotX;
-    rotateX3D(-totalRotX);
-    rotateY3D(velRotY);
-    rotateX3D(totalRotX + velRotX);
+    totalRotY += velRotY;
+    // rotateX3D(-totalRotX);
+    // rotateY3D(velRotY);
+    // rotateX3D(totalRotX + velRotX);
     //rotateX3D(velRotX);
     camera[2] += velz;
     camera[1] += vely;
@@ -297,25 +299,25 @@ function ViewFrames(){
     requestAnimationFrame(ViewFrames);
 }
 
-function RenderFrames(frameCount) {
-    if(frameCount>0){
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, width, height);
-        rotateY3D(0.01);
-        draw(ctx, backgroundColor);
-        let imageData = new ImageData(pixelData, width, height);
-        ctx.putImageData(imageData, 0, 0);
-        var filename = 'FastFrames'+frameCount+'.png'
-        document.getElementById("canvas").toBlob(function (blob) {
-            saveAs(blob, filename);
-        });
+// function RenderFrames(frameCount) {
+//     if(frameCount>0){
+//         ctx.fillStyle = "white";
+//         ctx.fillRect(0, 0, width, height);
+//         rotateY3D(0.01);
+//         draw(ctx, backgroundColor);
+//         let imageData = new ImageData(pixelData, width, height);
+//         ctx.putImageData(imageData, 0, 0);
+//         var filename = 'FastFrames'+frameCount+'.png'
+//         document.getElementById("canvas").toBlob(function (blob) {
+//             saveAs(blob, filename);
+//         });
         
-        setTimeout(() => {
-            RenderFrames(frameCount-1)
-        }, 1);
-    }
+//         setTimeout(() => {
+//             RenderFrames(frameCount-1)
+//         }, 1);
+//     }
     
-}
+// }
 
 
 function calcIntersection(x, y, z, triangle, equation){
@@ -372,7 +374,7 @@ function draw(){
     var lightRange = Math.pow(1500,2);
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
-                var triangleToRender = 10000000000;
+                var triangleToRender = 10000000000000;
                 var lightToRender;
                 var isTriangle = false;
                 for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
@@ -381,10 +383,13 @@ function draw(){
                     for (let tri = 0; tri < object.length; tri++) {
                         var Px = pixelSize * x - camera[0]/2;
                         var Py = pixelSize * y - camera[1]/2;
-                        var Pz = focalLength;
+                        var Pz = camera[2] + focalLength;
+                        var P = rotateX3D(totalRotX, [Px, Py, Pz]);
+                        P = rotateY3D(totalRotY, P);
+                        //console.log(P);
                         var triangle = object[tri];
                         var equation = equationOfAPlane(triangle);
-                        var intersection = calcIntersection(Px, Py, Pz, triangle, equation);
+                        var intersection = calcIntersection(P[0], P[1], P[2], triangle, equation);
                         //console.log(intersection);
                         if (Number.isNaN(intersection[0]) || intersection[0] === Infinity || intersection[0] === -Infinity){
                             continue;
@@ -397,12 +402,10 @@ function draw(){
                         }
                         var isInside = checkIfInsideTriangle(triangle, intersection);
                         
-                        if (isInside){
+                        if (isInside && intersection[3] > 0){
                             
                             var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
-                            if(Math.sqrt(SphereLightIntensity) < 200){
-                                //collided = true;
-                            }
+                            
                             var Spherelight = lightRange / (4 * 3.14 * SphereLightIntensity);
                             
                             var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
@@ -678,40 +681,37 @@ function draw(){
     }
 }
 
-var rotateZ3D = function (theta) {
+var rotateZ3D = function (theta, node) {
+    var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
-    for (var n = 0; n < nodes.length; n++) {
-        var node = nodes[n];
-        var x = node[0]-camera[0];
-        var y = node[1]-camera[1];
-        node[0] = round3(x * cosTheta - y * sinTheta + camera[0]);
-        node[1] = round3(y * cosTheta + x * sinTheta + camera[1]);
-    }
+    var x = node[0]-camera[0];
+    var y = node[1]-camera[1];
+    nodeT[0] = round3(x * cosTheta - y * sinTheta + camera[0]);
+    nodeT[1] = round3(y * cosTheta + x * sinTheta + camera[1]);
+    return nodeT;
 };
 
-var rotateX3D = function (theta) {
+var rotateX3D = function (theta, node) {
+    var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
-    for (var n = 0; n < nodes.length; n++) {
-        var node = nodes[n];
-        var y = node[1]-camera[1];
-        var z = node[2] - camera[2];
-        node[1] = round3(y * cosTheta - z * sinTheta + camera[1]);
-        node[2] = round3(z * cosTheta + y * sinTheta + camera[2]);
-    }
+    var y = node[1]-camera[1];
+    var z = node[2] - camera[2];
+    nodeT[1] = round3(y * cosTheta - z * sinTheta + camera[1]);
+    nodeT[2] = round3(z * cosTheta + y * sinTheta + camera[2]);
+    return nodeT;
     
 };
 
-var rotateY3D = function (theta) {
+var rotateY3D = function (theta, node) {
+    var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
-    for (var n = 0; n < nodes.length; n++) {
-        var node = nodes[n];
-        var x = node[0] - camera[0];
-        var z = node[2] - camera[2];
-        node[0] = round3(x * cosTheta + z * sinTheta + camera[0]);
-        node[2] = round3(z * cosTheta - x * sinTheta + camera[2]);
-    }
+    var x = node[0] - camera[0];
+    var z = node[2] - camera[2];
+    nodeT[0] = round3(x * cosTheta + z * sinTheta + camera[0]);
+    nodeT[2] = round3(z * cosTheta - x * sinTheta + camera[2]);
+    return nodeT;
    
 };
