@@ -92,7 +92,7 @@ var edgeColor = "black";
 var nodeSize = 5;
 var width = 900;
 var height = 600;
-var focalLength = 1000;
+var focalLength = 500;
 
 let camera = [500, 400, 500];
 var rot = [0, 0, 0];
@@ -244,9 +244,9 @@ function UpdatePlayerMovement(){
         vely -= 3;
     }
     if (movement.down) {
-        velz += 4;
+        velz -= 1;
     } else if (movement.up) {
-        velz -= 4;
+        velz += 1;
     } if (movement.left) {
         velRotY -= 0.005;
     } else if (movement.right) {
@@ -261,12 +261,19 @@ function UpdatePlayerMovement(){
         }
         movement.jump = false;
     }
+
+    
     vely *= velYConstant;
     velRotY *= velRotYConstant;
     velz *= velZConstant;
     velRotX *= velRotXConstant;
     totalRotX += velRotX;
     totalRotY += velRotY;
+    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz])
+    var oldCam = [camera[0], camera[1], camera[2]];
+    camera[0] = rotateY[0];
+    camera[2] = rotateY[2];
+    //console.log([rotateY[0] - oldCam[0], rotateY[2] - oldCam[2]])
     camera[1] += vely;
     if (camera[1] < 250) {
         camera[1] = 250;
@@ -281,8 +288,7 @@ function ViewFrames(){
     ctx.clearRect(0, 0, width, height);
     let imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-    camera[0] = rotateY[0];
-    camera[2] = rotateY[2];
+    
     requestAnimationFrame(ViewFrames);
 }
 
