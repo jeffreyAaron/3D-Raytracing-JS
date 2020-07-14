@@ -78,10 +78,14 @@ var platformData = {
         b: 245
     },
     collide: true,
+    x: -500,
+    dx: 510,
+    y: 50, 
+    dy: 100,
+    z: -500,
+    dz: 1010
     
 }
-
-var collided = false;
 
 var objects = [room, platform];
 var objectData = [roomData, platformData]
@@ -101,7 +105,7 @@ var pixelSize = 4;
 
 var pixelData = null;
 
-const gpu = new GPU();
+// const gpu = new GPU();
 
 
 Array.prototype.min = function () {
@@ -110,7 +114,7 @@ Array.prototype.min = function () {
 
 function round3(num){
     
-    return (Math.ceil(num * 1000000) / 1000000);
+    return (Math.ceil(num * 1000) / 1000);
 }
 
 function inverseMatrix(mat){
@@ -138,16 +142,13 @@ var equationOfAPlane = function (a) {
     var n1 = nodes[a[0]];
     var n2 = nodes[a[1]];
     var n3 = nodes[a[2]];
-
     var v1 = subtractVectors(n1, n2);
     var v2 = subtractVectors(n1, n3);
-    //console.log(v1);
-    //console.log(v2);
     var v31 = v1[1] * v2[2] - v1[2] * v2[1];
     var v32 = v1[2] * v2[0] - v1[0] * v2[2];
     var v33 = v1[0] * v2[1] - v1[1] * v2[0];
 
-    var d = -(v31 * n1[0] + v32 * n1[1] + v33 * n1[2])
+    var d = -round3(v31 * n1[0] + v32 * n1[1] + v33 * n1[2])
     var v3 = [
         v31, v32, v33, d
     ];
@@ -215,13 +216,13 @@ document.addEventListener('keyup', function (event) {
     }
 });
 
-// const kernel = gpu.createKernel(function () {
-//     return [this.thread.x, this.thread.y, this.thread.z];
-// }, settings);
-
 // const settings = {
 //     output: {x:100, y:100, z:100}
 // };
+// const kernel = gpu.createKernel(function () {
+//     return [this.thread.z, this.thread.y, this.thread.x];
+// }, settings);
+
 
 var isMouseDown = false;
 document.onmousedown = function () {
@@ -235,13 +236,13 @@ document.onmousemove = function (event) {
         var x = event.movementX;
         var y = event.movementY;
 
-        var range = Math.PI/2;
+        var range = Math.PI*0.5;
 
-        x = -x/(width / 2) * range/2;
-        y = y/(height / 2) * range;
+        x = range * x /(width);
+        y = range * y /(height);
 
         totalRotX += y;
-        totalRotY += x;
+        totalRotY -= x;
 }
 };
 
@@ -257,7 +258,7 @@ window.onload = () => {
     setTimeout(() => {
         ViewFrames();
         
-    }, 1000);
+    }, 10);
 }
 
 var velz = 0;
@@ -272,6 +273,8 @@ var totalRotX = 0.001;
 var totalRotY = 0.001;
 
 function UpdatePlayerMovement(){
+    var x = camera[0], y = camera[1], z = camera[2];
+    
     
     if (camera[1] > 250) {
         vely -= 3;
@@ -281,75 +284,70 @@ function UpdatePlayerMovement(){
     } else if (movement.up) {
         velz += 1;
     }
-    // } if (movement.left) {
-    //     velRotY -= 0.005;
-    // } else if (movement.right) {
-    //     velRotY += 0.005;
-    // } if (movement.lookUp) {
-    //     velRotX += 0.005;
-    // } else if (movement.lookDown) {
-    //     velRotX -= 0.005;
-    // } 
     if (movement.jump) {
         if (camera[1] === 250){
             vely += 23;
         }
         movement.jump = false;
     }
-
-    
     vely *= velYConstant;
-    //velRotY *= velRotYConstant;
     velz *= velZConstant;
-    //velRotX *= velRotXConstant;
-    //totalRotX += velRotX;
-    //totalRotY += velRotY;
     var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz])
-    var oldCam = [camera[0], camera[1], camera[2]];
     camera[0] = rotateY[0];
     camera[2] = rotateY[2];
-    //console.log([rotateY[0] - oldCam[0], rotateY[2] - oldCam[2]])
     camera[1] += vely;
     if (camera[1] < 250) {
         camera[1] = 250;
     }
+    checkCollide(x, y, z);
 }
 
+
+function checkCollide(x,y,z){
+    for (let object = 0; object < objects.length; object++) {
+        var obj = objects[object];
+        var objData = objectData[object];
+        if(!objData.collide){
+            continue;
+        }
+        var playerWidth = 50;
+        var large = 1000000;
+        var A = {
+            x: objData.x + large,
+            dx: objData.dx,
+            y: objData.y + large,
+            dy: objData.dy ,
+            z: objData.z + large,
+            dz: objData.dz 
+        };
+        var B = {
+            x: camera[0] + large,
+            dx: playerWidth,
+            y: 0 + large,
+            dy: 600,
+            z: camera[2] + large,
+            dz: playerWidth 
+        }
+        console.log(A);
+        console.log(B);
+        if (!(B.x > A.x + A.dx || B.x + B.dx < A.x || B.y > A.y + A.dy || B.y + B.dy < A.y || B.z > A.z + A.dz || B.z + B.dz < A.z)){
+            console.log("hit")
+            camera = [x,y,z];
+        }
+    }
+}
 
 
 function ViewFrames(){
     UpdatePlayerMovement();
     draw();
-    ctx.clearRect(0, 0, width, height);
+    //ctx.clearRect(0, 0, width, height);
     let imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
     
     requestAnimationFrame(ViewFrames);
 }
-
-// function RenderFrames(frameCount) {
-//     if(frameCount>0){
-//         ctx.fillStyle = "white";
-//         ctx.fillRect(0, 0, width, height);
-//         rotateY3D(0.01);
-//         draw(ctx, backgroundColor);
-//         let imageData = new ImageData(pixelData, width, height);
-//         ctx.putImageData(imageData, 0, 0);
-//         var filename = 'FastFrames'+frameCount+'.png'
-//         document.getElementById("canvas").toBlob(function (blob) {
-//             saveAs(blob, filename);
-//         });
-        
-//         setTimeout(() => {
-//             RenderFrames(frameCount-1)
-//         }, 1);
-//     }
-    
-// }
-
-
 function calcIntersection(x, y, z, triangle, equation){
-    //var equation = equationOfAPlane(triangle);
     var a = equation[0];
     var b = equation[1];
     var c = equation[2];
@@ -396,36 +394,37 @@ function checkIfInsideTriangle(triangle, point){
 
 
 function draw(){
-    collided = false;
+    
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
     var lightRange = Math.pow(1500,2);
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
-                var triangleToRender = 10000000000000;
-                var lightToRender;
-                var isTriangle = false;
+            var triangleToRender = 10000000000000;
+            var lightToRender;
+            var isTriangle = false;
+            var Px = pixelSize * x - camera[0] * 0.5;
+            var Py = pixelSize * y - camera[1] * 0.5;
+            var Pz = camera[2] + focalLength;
+            var P = rotateX3D(totalRotX, [Px, Py, Pz]);
+            P = rotateY3D(totalRotY, P);
+            P = [Math.ceil(P[0]), Math.ceil(P[1]), Math.ceil(P[2])]
                 for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
-                    const object = objects[objectIndex];
+                    var object = objects[objectIndex];
                     var objectDat = objectData[objectIndex];
                     for (let tri = 0; tri < object.length; tri++) {
-                        var Px = pixelSize * x - camera[0]/2;
-                        var Py = pixelSize * y - camera[1]/2;
-                        var Pz = camera[2] + focalLength;
-                        var P = rotateX3D(totalRotX, [Px, Py, Pz]);
-                        P = rotateY3D(totalRotY, P);
-                        //console.log(P);
+                        
                         var triangle = object[tri];
                         var equation = equationOfAPlane(triangle);
                         var intersection = calcIntersection(P[0], P[1], P[2], triangle, equation);
-                        //console.log(intersection);
-                        if (Number.isNaN(intersection[0]) || intersection[0] === Infinity || intersection[0] === -Infinity){
+                        
+                        if (!isFinite(intersection[0])){
                             continue;
                         }
-                        if (Number.isNaN(intersection[1]) || intersection[1] === Infinity || intersection[1] === -Infinity) {
+                        if (!isFinite(intersection[1])) {
                             continue;
                         }
-                        if (Number.isNaN(intersection[2]) || intersection[2] === Infinity || intersection[2] === -Infinity) {
+                        if (!isFinite(intersection[2])) {
                             continue;
                         }
                         var isInside = checkIfInsideTriangle(triangle, intersection);
@@ -434,20 +433,20 @@ function draw(){
                             
                             var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
                             
-                            var Spherelight = lightRange / (4 * 3.14 * SphereLightIntensity);
+                            var Spherelight = lightRange / (4 * 3 * SphereLightIntensity);
                             
-                            var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
-                            var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector) * 180);
+                            var normalToPlaneVector = normaliseVector([equation[0], equation[1], equation[2]]);
+                            var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector));
                             
-                            var PointLight = PointLightIntensity / 180;
+                            var PointLight = PointLightIntensity;
                             
                             
-                            var FinalLight = (1 * PointLight + 29 * Spherelight) / 30;
+                            var FinalLight = 0.033 * PointLight + 0.966 * Spherelight;
                             var FinalRGB = [objectDat.color.r * FinalLight, objectDat.color.g * FinalLight, objectDat.color.b * FinalLight]
-                            if (Math.abs(triangleToRender) > Math.abs(intersection[3])) {
+                            if (triangleToRender > intersection[3]) {
                             
                                 lightToRender = FinalRGB;
-                                triangleToRender = Math.abs(intersection[3]);
+                                triangleToRender = intersection[3];
                                 isTriangle = true;
                             }
                         }
