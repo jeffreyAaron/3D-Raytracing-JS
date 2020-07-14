@@ -101,6 +101,8 @@ var pixelSize = 4;
 
 var pixelData = null;
 
+const gpu = new GPU();
+
 
 Array.prototype.min = function () {
     return Math.min.apply(null, this);
@@ -213,10 +215,41 @@ document.addEventListener('keyup', function (event) {
     }
 });
 
+const kernel = gpu.createKernel(function () {
+    return [this.thread.x, this.thread.y, this.thread.z];
+}, settings);
+
+const settings = {
+    output: {x:100, y:100, z:100}
+};
+
+var isMouseDown = false;
+document.onmousedown = function () {
+    isMouseDown = true
+};
+document.onmouseup = function () {
+    isMouseDown = false
+};
+document.onmousemove = function (event) {
+    if (isMouseDown) {
+        var x = event.movementX;
+        var y = event.movementY;
+
+        var range = Math.PI;
+
+        x = x/(width / 2) * range/2;
+        y = -y/(height / 2) * range;
+
+        totalRotX += y;
+        totalRotY += x;
+}
+};
+
 lightVector = normaliseVector(lightVector);
 var ctx;
 window.onload = () => {
     var canvas = document.getElementById("canvas");
+    
     ctx = canvas.getContext("2d");
     
     pixelData = new Uint8ClampedArray(height * width * 4);
@@ -247,15 +280,17 @@ function UpdatePlayerMovement(){
         velz -= 1;
     } else if (movement.up) {
         velz += 1;
-    } if (movement.left) {
-        velRotY -= 0.005;
-    } else if (movement.right) {
-        velRotY += 0.005;
-    } if (movement.lookUp) {
-        velRotX += 0.005;
-    } else if (movement.lookDown) {
-        velRotX -= 0.005;
-    } if (movement.jump) {
+    }
+    // } if (movement.left) {
+    //     velRotY -= 0.005;
+    // } else if (movement.right) {
+    //     velRotY += 0.005;
+    // } if (movement.lookUp) {
+    //     velRotX += 0.005;
+    // } else if (movement.lookDown) {
+    //     velRotX -= 0.005;
+    // } 
+    if (movement.jump) {
         if (camera[1] === 250){
             vely += 23;
         }
@@ -264,11 +299,11 @@ function UpdatePlayerMovement(){
 
     
     vely *= velYConstant;
-    velRotY *= velRotYConstant;
+    //velRotY *= velRotYConstant;
     velz *= velZConstant;
-    velRotX *= velRotXConstant;
-    totalRotX += velRotX;
-    totalRotY += velRotY;
+    //velRotX *= velRotXConstant;
+    //totalRotX += velRotX;
+    //totalRotY += velRotY;
     var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz])
     var oldCam = [camera[0], camera[1], camera[2]];
     camera[0] = rotateY[0];
