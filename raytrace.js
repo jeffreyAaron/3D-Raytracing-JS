@@ -215,13 +215,13 @@ document.addEventListener('keyup', function (event) {
     }
 });
 
-const kernel = gpu.createKernel(function () {
-    return [this.thread.x, this.thread.y, this.thread.z];
-}, settings);
+// const kernel = gpu.createKernel(function () {
+//     return [this.thread.x, this.thread.y, this.thread.z];
+// }, settings);
 
-const settings = {
-    output: {x:100, y:100, z:100}
-};
+// const settings = {
+//     output: {x:100, y:100, z:100}
+// };
 
 var isMouseDown = false;
 document.onmousedown = function () {
@@ -235,10 +235,10 @@ document.onmousemove = function (event) {
         var x = event.movementX;
         var y = event.movementY;
 
-        var range = Math.PI;
+        var range = Math.PI/2;
 
-        x = x/(width / 2) * range/2;
-        y = -y/(height / 2) * range;
+        x = -x/(width / 2) * range/2;
+        y = y/(height / 2) * range;
 
         totalRotX += y;
         totalRotY += x;
