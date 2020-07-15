@@ -16,7 +16,16 @@ var node13 = [-500, 50, 510];
 var node14 = [-500, 150, -500];
 var node15 = [-500, 150, 510];
 
-var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15];
+var node16 = [-1000, 50, -1000];
+var node17 = [-1000, 50, -900];
+var node18 = [-1000, 550, -1000];
+var node19 = [-1000, 550, -900];
+var node20 = [-900, 50, -1000];
+var node21 = [-900, 50, -900];
+var node22 = [-900, 550, -1000];
+var node23 = [-900, 550, -900];
+
+var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15, node16, node17, node18, node19, node20, node21, node22, node23];
 
 // var edge0 = [0, 1];
 // var edge1 = [1, 3];
@@ -58,10 +67,24 @@ var tri21 = [3 + 8, 0 + 8, 1 + 8];
 var tri22 = [7 + 8, 6 + 8, 3 + 8];
 var tri23 = [2 + 8, 3 + 8, 6 + 8];
 
-var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11, tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+var tri24 = [4 + 16, 0 + 16, 2 + 16];
+var tri25 = [4 + 16, 2 + 16, 6 + 16];
+var tri26 = [7 + 16, 4 + 16, 6 + 16];
+var tri27 = [4 + 16, 7 + 16, 5 + 16];
+var tri28 = [5 + 16, 7 + 16, 1 + 16];
+var tri29 = [3 + 16, 1 + 16, 7 + 16];
+var tri30 = [0 + 16, 4 + 16, 1 + 16];
+var tri31 = [4 + 16, 5 + 16, 1 + 16];
+var tri32 = [0 + 16, 3 + 16, 2 + 16];
+var tri33 = [3 + 16, 0 + 16, 1 + 16];
+var tri34 = [7 + 16, 6 + 16, 3 + 16];
+var tri35 = [2 + 16, 3 + 16, 6 + 16];
+
+var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11, tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23, tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
 
 var room = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11];
 var platform = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+var box = [tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
 
 var roomData = {
     color: {
@@ -87,8 +110,24 @@ var platformData = {
     
 }
 
-var objects = [room, platform];
-var objectData = [roomData, platformData]
+var boxData = {
+    color: {
+        r: 255,
+        g: 77,
+        b: 77
+    },
+    collide: true,
+    x: -1000,
+    dx: 100,
+    y: 50,
+    dy: 600,
+    z: -1000,
+    dz: 100
+
+}
+
+var objects = [room, platform, box];
+var objectData = [roomData, platformData, boxData]
 
 var backgroundColor = "white";
 var nodeColor = "red";
@@ -96,7 +135,7 @@ var edgeColor = "black";
 var nodeSize = 5;
 var width = 900;
 var height = 600;
-var focalLength = 500;
+var focalLength = 400;
 
 let camera = [500, 400, 500];
 var rot = [0, 0, 0];
@@ -114,7 +153,7 @@ Array.prototype.min = function () {
 
 function round3(num){
     
-    return (Math.ceil(num * 1000) / 1000);
+    return num;
 }
 
 function inverseMatrix(mat){
@@ -310,7 +349,7 @@ function checkCollide(x,y,z){
         if(!objData.collide){
             continue;
         }
-        var playerWidth = 50;
+        var playerWidth = 200;
         var large = 1000000;
         var A = {
             x: objData.x + large,
@@ -321,17 +360,17 @@ function checkCollide(x,y,z){
             dz: objData.dz 
         };
         var B = {
-            x: camera[0] + large,
+            x: camera[0] + large - playerWidth / 2,
             dx: playerWidth,
-            y: 0 + large,
-            dy: 600,
-            z: camera[2] + large,
+            y: 250 + large,
+            dy: 250,
+            z: camera[2] + large - playerWidth / 2,
             dz: playerWidth 
         }
-        console.log(A);
-        console.log(B);
+        //console.log(A);
+        //console.log(B);
         if (!(B.x > A.x + A.dx || B.x + B.dx < A.x || B.y > A.y + A.dy || B.y + B.dy < A.y || B.z > A.z + A.dz || B.z + B.dz < A.z)){
-            console.log("hit")
+            //console.log("hit")
             camera = [x,y,z];
         }
     }
@@ -397,7 +436,7 @@ function draw(){
     
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
-    var lightRange = Math.pow(1500,2);
+    var lightRange = Math.pow(1200, 2);
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
             var triangleToRender = 10000000000000;
@@ -418,22 +457,17 @@ function draw(){
                         var equation = equationOfAPlane(triangle);
                         var intersection = calcIntersection(P[0], P[1], P[2], triangle, equation);
                         
-                        if (!isFinite(intersection[0])){
+                        if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
                             continue;
                         }
-                        if (!isFinite(intersection[1])) {
-                            continue;
-                        }
-                        if (!isFinite(intersection[2])) {
-                            continue;
-                        }
+                        
                         var isInside = checkIfInsideTriangle(triangle, intersection);
                         
                         if (isInside && intersection[3] > 0){
                             
                             var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
                             
-                            var Spherelight = lightRange / (4 * 3 * SphereLightIntensity);
+                            var Spherelight = lightRange / (4 * Math.PI * SphereLightIntensity);
                             
                             var normalToPlaneVector = normaliseVector([equation[0], equation[1], equation[2]]);
                             var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector));
@@ -441,7 +475,7 @@ function draw(){
                             var PointLight = PointLightIntensity;
                             
                             
-                            var FinalLight = 0.033 * PointLight + 0.966 * Spherelight;
+                            var FinalLight = 0.033 * Spherelight + 0.967 * PointLight;
                             var FinalRGB = [objectDat.color.r * FinalLight, objectDat.color.g * FinalLight, objectDat.color.b * FinalLight]
                             if (triangleToRender > intersection[3]) {
                             
