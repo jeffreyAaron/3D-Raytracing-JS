@@ -87,6 +87,7 @@ var platform = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, t
 var box = [tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
 
 var roomData = {
+    id: 1,
     color: {
         r: 210,
         g: 210,
@@ -95,6 +96,7 @@ var roomData = {
     collide:false
 }
 var platformData = {
+    id: 2,
     color: {
         r: 66,
         g: 135,
@@ -111,6 +113,7 @@ var platformData = {
 }
 
 var boxData = {
+    id: 3,
     color: {
         r: 255,
         g: 77,
@@ -126,8 +129,9 @@ var boxData = {
 
 }
 
-var objects = [room, platform, box];
+var objects = [room, platform, box]
 var objectData = [roomData, platformData, boxData]
+
 
 var backgroundColor = "white";
 var nodeColor = "red";
@@ -139,6 +143,7 @@ var focalLength = 400;
 
 let camera = [500, 400, 500];
 var rot = [0, 0, 0];
+var lightPoint = [0, 260, 0];
 var lightVector = [0, -1, -2];
 var pixelSize = 4;
 
@@ -386,14 +391,14 @@ function ViewFrames(){
     
     requestAnimationFrame(ViewFrames);
 }
-function calcIntersection(x, y, z, triangle, equation){
+function calcIntersection(x, y, z, triangle, equation, cameras){
     var a = equation[0];
     var b = equation[1];
     var c = equation[2];
     var d = equation[3];
-    var Cx = camera[0];
-    var Cy = camera[1];
-    var Cz = camera[2];
+    var Cx = cameras[0];
+    var Cy = cameras[1];
+    var Cz = cameras[2];
     var Px = x;
     var Py = y;
     var Pz = z;
@@ -430,6 +435,49 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
+function traceToLight(intersectionP, id, firstColor){
+    var P = lightPoint;
+    var triangleToRender = -10000000000000;
+    var lightToRender;
+    for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+        var object = objects[objectIndex];
+        var objectDat = objectData[objectIndex];
+        if(objectDat.id === id){
+            continue;
+        }
+        for (let tri = 0; tri < object.length; tri++) {
+
+            var triangle = object[tri];
+            var equation = equationOfAPlane(triangle);
+            var intersection = calcIntersection(P[0], P[1], P[2], triangle, equation, intersectionP);
+            if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
+                continue;
+            }
+            var distToOrig = Math.pow(intersectionP[0] - lightPoint[0], 2) + Math.pow(intersectionP[1] - lightPoint[1], 2) + Math.pow(intersectionP[2] - lightPoint[2], 2);
+            
+            var dist = Math.pow(intersection[0] - lightPoint[0], 2) + Math.pow(intersection[1] - lightPoint[1], 2) + Math.pow(intersection[2] - lightPoint[2], 2);
+            
+            if(dist > distToOrig){
+                continue;
+            }
+
+
+
+            var isInside = checkIfInsideTriangle(triangle, intersection);
+
+            if (isInside) {
+                // Shadow
+                var FinalLight = 0.2;
+                //var firstColor = [objectDat.color.r, objectDat.color.g, objectDat.color.b]
+                return [firstColor[0] * FinalLight, firstColor[1] * FinalLight, firstColor[2] * FinalLight]
+            }
+
+        }
+    }
+
+    return firstColor;
+}
+
 
 
 function draw(){
@@ -455,7 +503,7 @@ function draw(){
                         
                         var triangle = object[tri];
                         var equation = equationOfAPlane(triangle);
-                        var intersection = calcIntersection(P[0], P[1], P[2], triangle, equation);
+                        var intersection = calcIntersection(P[0], P[1], P[2], triangle, equation, camera);
                         
                         if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
                             continue;
@@ -464,22 +512,23 @@ function draw(){
                         var isInside = checkIfInsideTriangle(triangle, intersection);
                         
                         if (isInside && intersection[3] > 0){
-                            
-                            var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
-                            
-                            var Spherelight = lightRange / (4 * Math.PI * SphereLightIntensity);
-                            
-                            var normalToPlaneVector = normaliseVector([equation[0], equation[1], equation[2]]);
-                            var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector));
-                            
-                            var PointLight = PointLightIntensity;
-                            
-                            
-                            var FinalLight = 0.033 * Spherelight + 0.967 * PointLight;
-                            var FinalRGB = [objectDat.color.r * FinalLight, objectDat.color.g * FinalLight, objectDat.color.b * FinalLight]
-                            if (triangleToRender > intersection[3]) {
-                            
-                                lightToRender = FinalRGB;
+                            if (Math.abs(triangleToRender) > Math.abs(intersection[3])) {
+                                var rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b]);
+                                
+                                // var SphereLightIntensity = Math.pow(intersection[0] - camera[0], 2) + Math.pow(intersection[1] - camera[1], 2) + Math.pow(intersection[2] - camera[2], 2);
+
+                                // var Spherelight = lightRange / (4 * 3.14 * SphereLightIntensity);
+
+                                var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                                var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, lightVector) * 180);
+
+                                var PointLight = PointLightIntensity / 180;
+
+
+                                // var FinalLight = (29 * PointLight + 1 * Spherelight) / 30;
+                                var FinalRGB = [rgb[0] * PointLight, rgb[1] * PointLight, rgb[2] * PointLight]
+                                lightToRender = rgb;
+                                //console.log(rgb);
                                 triangleToRender = intersection[3];
                                 isTriangle = true;
                             }
