@@ -16,14 +16,14 @@ var node13 = [-500, 50, 510];
 var node14 = [-500, 150, -500];
 var node15 = [-500, 150, 510];
 
-var node16 = [-1000, 50, -1000];
-var node17 = [-1000, 50, -900];
-var node18 = [-1000, 550, -1000];
-var node19 = [-1000, 550, -900];
-var node20 = [-900, 50, -1000];
-var node21 = [-900, 50, -900];
-var node22 = [-900, 550, -1000];
-var node23 = [-900, 550, -900];
+var node16 = [900, 50, 900];
+var node17 = [900, 50, 800];
+var node18 = [900, 550,900];
+var node19 = [900, 550,800];
+var node20 = [800, 50, 900];
+var node21 = [800, 50, 800];
+var node22 = [800, 550, 900];
+var node23 = [800, 550, 800];
 
 var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15, node16, node17, node18, node19, node20, node21, node22, node23];
 
@@ -41,31 +41,31 @@ var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node
 // var edge11 = [3, 7];
 // var edges = [edge0, edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8, edge9, edge10, edge11];
 
-var tri0 = [4, 0, 2];
-var tri1 = [4, 2, 6];
-var tri2 = [7, 4, 6];
-var tri3 = [4, 7, 5];
-var tri4 = [5, 7, 1];
-var tri5 = [3, 1, 7];
-var tri6 = [0, 4, 1];
-var tri7 = [4, 5, 1];
-var tri8 = [0, 3, 2];
-var tri9 = [3, 0, 1];
-var tri10 = [7, 6, 3];
-var tri11 = [2, 3, 6];
+var tri0 = [4, 2, 0];
+var tri1 = [4, 6, 2];
+var tri2 = [7, 6, 4];
+var tri3 = [4, 5, 7];
+var tri4 = [5, 1, 7];
+var tri5 = [3, 7, 1];
+var tri6 = [0, 1, 4];
+var tri7 = [4, 1, 5];
+var tri8 = [0, 2, 3];
+var tri9 = [3, 1, 0];
+var tri10 = [7, 3, 6];
+var tri11 = [2, 6, 3];
 
-var tri12 = [4 + 8, 0 + 8, 2 + 8];
-var tri13 = [4 + 8, 2 + 8, 6 + 8];
-var tri14 = [7 + 8, 4 + 8, 6 + 8];
-var tri15 = [4 + 8, 7 + 8, 5 + 8];
-var tri16 = [5 + 8, 7 + 8, 1 + 8];
-var tri17 = [3 + 8, 1 + 8, 7 + 8];
-var tri18 = [0 + 8, 4 + 8, 1 + 8];
-var tri19 = [4 + 8, 5 + 8, 1 + 8];
-var tri20 = [0 + 8, 3 + 8, 2 + 8];
-var tri21 = [3 + 8, 0 + 8, 1 + 8];
-var tri22 = [7 + 8, 6 + 8, 3 + 8];
-var tri23 = [2 + 8, 3 + 8, 6 + 8];
+var tri12 = [4 + 8, 2 + 8, 0 + 8];
+var tri13 = [4 + 8, 6 + 8, 2 + 8];
+var tri14 = [7 + 8, 6 + 8, 4 + 8];
+var tri15 = [4 + 8, 5 + 8, 7 + 8];
+var tri16 = [5 + 8, 1 + 8, 7 + 8];
+var tri17 = [3 + 8, 7 + 8, 1 + 8];
+var tri18 = [0 + 8, 1 + 8, 4 + 8];
+var tri19 = [4 + 8, 1 + 8, 5 + 8];
+var tri20 = [0 + 8, 2 + 8, 3 + 8];
+var tri21 = [3 + 8, 1 + 8, 0 + 8];
+var tri22 = [7 + 8, 3 + 8, 6 + 8];
+var tri23 = [2 + 8, 6 + 8, 3 + 8];
 
 var tri24 = [4 + 16, 0 + 16, 2 + 16];
 var tri25 = [4 + 16, 2 + 16, 6 + 16];
@@ -93,6 +93,7 @@ var roomData = {
         g: 210,
         b: 210
     },
+    isReflect: false,
     collide:false
 }
 var platformData = {
@@ -102,6 +103,7 @@ var platformData = {
         g: 135,
         b: 245
     },
+    isReflect: true,
     collide: true,
     x: -500,
     dx: 510,
@@ -119,13 +121,8 @@ var boxData = {
         g: 77,
         b: 77
     },
-    collide: true,
-    x: -1000,
-    dx: 100,
-    y: 50,
-    dy: 600,
-    z: -1000,
-    dz: 100
+    isReflect: false,
+    collide: false,
 
 }
 
@@ -146,8 +143,8 @@ var rot = [0, 0, 0];
 var lightPoint = [0, 350, 0];
 var lightPoint2 = [900, 10, -900];
 var lightVector = [0, 1, 2];
-var lights = [lightPoint, lightPoint2];
-var pixelSize = 1;
+var lights = [lightPoint,lightPoint2];
+var pixelSize = 6;
 
 var pixelData = null;
 
@@ -338,7 +335,7 @@ function UpdatePlayerMovement(){
     }
     vely *= velYConstant;
     velz *= velZConstant;
-    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz])
+    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz], camera)
     camera[0] = rotateY[0];
     camera[2] = rotateY[2];
     camera[1] += vely;
@@ -437,6 +434,55 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
+function traceToReflection(intersectionP, id, lightPoint, light) {
+    var triangleToRender = 10000000000000;
+    var lightToRender;
+    var isTriangle = false;
+    for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+        var object = objects[objectIndex];
+        var objectDat = objectData[objectIndex];
+        if(objectDat.id === id){
+            continue;
+        }
+        for (let tri = 0; tri < object.length; tri++) {
+            var triangle = object[tri];
+            var equation = equationOfAPlane(triangle);
+            var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], triangle, equation, lightPoint);
+            if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
+                continue;
+            }
+            var isInside = checkIfInsideTriangle(triangle, intersection);
+
+            if (triangleToRender > intersection[3]) {
+                if (isInside) {
+                    //console.log(objectDat.id)
+                    rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light );
+                    var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                    var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                    var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                    if(PointLightIntensity<0){
+                        PointLightIntensity = 0;
+                    }
+                        // Possible Figure
+                    
+                    lightToRender = [rgb[0] * PointLightIntensity, rgb[1] * PointLightIntensity, rgb[2] * PointLightIntensity];
+                    triangleToRender = intersection[3];
+                    isTriangle = true;
+                    
+                }
+            }
+
+        }
+    }
+
+    if (isTriangle) {
+        return lightToRender;
+    }else{
+        return [255, 255, 255]
+    }
+
+    
+}
 function traceToLight(intersectionP, id, firstColor, lightPoint){
     var P = lightPoint;
     var triangleToRender = -10000000000000;
@@ -470,13 +516,13 @@ function traceToLight(intersectionP, id, firstColor, lightPoint){
                 // Shadow
                 var FinalLight = 0.2;
                 //var firstColor = [objectDat.color.r, objectDat.color.g, objectDat.color.b]
-                return [firstColor[0] * FinalLight, firstColor[1] * FinalLight, firstColor[2] * FinalLight]
+                return [firstColor[0] * FinalLight, firstColor[1] * FinalLight, firstColor[2] * FinalLight, false]
             }
 
         }
     }
 
-    return firstColor;
+    return [firstColor[0], firstColor[1], firstColor[2], true];
 }
 
 
@@ -494,8 +540,8 @@ function draw(){
             var Px = pixelSize * x - camera[0] * 0.5;
             var Py = pixelSize * y - camera[1] * 0.5;
             var Pz = camera[2] + focalLength;
-            var P = rotateX3D(totalRotX, [Px, Py, Pz]);
-            P = rotateY3D(totalRotY, P);
+            var P = rotateX3D(totalRotX, [Px, Py, Pz], camera);
+            P = rotateY3D(totalRotY, P, camera);
             P = [P[0], P[1], P[2]]
                 for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
                     var object = objects[objectIndex];
@@ -514,16 +560,20 @@ function draw(){
                         
                         var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
                         if (isInside && intersection[3] > 0){
-                            if (Math.abs(triangleToRender) > Math.abs(intersection[3])) {
+                            if (triangleToRender > intersection[3]) {
                                 var rgb;
                                 var PointLight = 0;
                                 var FinalRGB = [0, 0, 0]
                                 for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
                                     var light = lights[lightIndex];
-                                    //console.log(light);
                                     rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
-                                    var Lightvector = normaliseVector(subtractVectors(light, intersection))
-                                    var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, Lightvector));
+                                    //var rgbRef = null;
+                                    var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                                    var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                                    if (PointLightIntensity< 0){
+                                        PointLightIntensity = 0;
+                                    }
+                                    
                                     
                                     FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]
                                     
@@ -792,7 +842,7 @@ function draw(){
     }
 }
 
-var rotateZ3D = function (theta, node) {
+var rotateZ3D = function (theta, node, camera) {
     var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
@@ -803,7 +853,7 @@ var rotateZ3D = function (theta, node) {
     return nodeT;
 };
 
-var rotateX3D = function (theta, node) {
+var rotateX3D = function (theta, node, camera) {
     var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
@@ -815,7 +865,7 @@ var rotateX3D = function (theta, node) {
     
 };
 
-var rotateY3D = function (theta, node) {
+var rotateY3D = function (theta, node, camera) {
     var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
