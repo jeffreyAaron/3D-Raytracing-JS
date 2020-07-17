@@ -93,7 +93,7 @@ var roomData = {
         g: 210,
         b: 210
     },
-    isReflect: false,
+    isTransparent: false,
     collide:false
 }
 var platformData = {
@@ -103,7 +103,8 @@ var platformData = {
         g: 135,
         b: 245
     },
-    isReflect: true,
+    isTransparent: true,
+    alpha: 0.6,
     collide: true,
     x: -500,
     dx: 510,
@@ -121,7 +122,7 @@ var boxData = {
         g: 77,
         b: 77
     },
-    isReflect: false,
+    isTransparent: false,
     collide: false,
 
 }
@@ -144,7 +145,7 @@ var lightPoint = [0, 350, 0];
 var lightPoint2 = [900, 10, -900];
 var lightVector = [0, 1, 2];
 var lights = [lightPoint,lightPoint2];
-var pixelSize = 5;
+var pixelSize = 1;
 
 var pixelData = null;
 
@@ -434,7 +435,7 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
-function traceToReflection(intersectionP, id, lightPoint, light,) {
+function traceToTransparency(intersectionP, id, lightPoint, color, light, alpha) {
     var triangleToRender = 10000000000000;
     var lightToRender;
     var isTriangle = false;
@@ -459,14 +460,15 @@ function traceToReflection(intersectionP, id, lightPoint, light,) {
                     rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light );
                     var Lightvector = normaliseVector(subtractVectors(light, intersection));
                     var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
-                    var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, Lightvector));
-                    if(PointLightIntensity<0){
-                        continue;
-                    }
-                    
+                    var PointLightIntensity =dotProduct(normalToPlaneVector, Lightvector);
+                    //PointLightIntensity = 1;
                         // Possible Figure
                     
-                    lightToRender = [rgb[0] * PointLightIntensity, rgb[1] * PointLightIntensity, rgb[2] * PointLightIntensity];
+                    lightToRender = [
+                        ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
+                        ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
+                        ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
+                        ];
                     triangleToRender = intersection[3];
                     isTriangle = true;
                     
@@ -516,7 +518,6 @@ function traceToLight(intersectionP, id, firstColor, lightPoint){
             if (isInside) {
                 // Shadow
                 var FinalLight = 0.2;
-                //var firstColor = [objectDat.color.r, objectDat.color.g, objectDat.color.b]
                 return [firstColor[0] * FinalLight, firstColor[1] * FinalLight, firstColor[2] * FinalLight, false]
             }
 
@@ -568,12 +569,17 @@ function draw(){
                                 for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
                                     var light = lights[lightIndex];
                                     rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
+                                    if(rgb[3]){
+                                        PointLightIntensity = 1;
+                                    }
                                     var Lightvector = normaliseVector(subtractVectors(light, intersection));
                                     var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                                    if (objectDat.isReflect){
-                                        rgb = traceToReflection(camera, objectDat.id, P, light)
-                                        
+                                    if (objectDat.isTransparent){
+                                        rgb = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha)
+                                        PointLightIntensity = 1;
                                     }
+
+                                    
                                     
                                     FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]
                                     
