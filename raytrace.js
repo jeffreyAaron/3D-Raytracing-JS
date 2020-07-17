@@ -434,7 +434,7 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
-function traceToReflection(intersectionP, id, lightPoint, light) {
+function traceToReflection(intersectionP, id, lightPoint, light,) {
     var triangleToRender = 10000000000000;
     var lightToRender;
     var isTriangle = false;
@@ -463,6 +463,7 @@ function traceToReflection(intersectionP, id, lightPoint, light) {
                     if(PointLightIntensity<0){
                         continue;
                     }
+                    
                         // Possible Figure
                     
                     lightToRender = [rgb[0] * PointLightIntensity, rgb[1] * PointLightIntensity, rgb[2] * PointLightIntensity];
