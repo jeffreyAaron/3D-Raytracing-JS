@@ -16,14 +16,14 @@ var node13 = [-500, 50, 510];
 var node14 = [-500, 150, -500];
 var node15 = [-500, 150, 510];
 
-var node16 = [900, 50, 900];
-var node17 = [900, 50, 800];
-var node18 = [900, 550,900];
-var node19 = [900, 550,800];
-var node20 = [800, 50, 900];
-var node21 = [800, 50, 800];
-var node22 = [800, 550, 900];
-var node23 = [800, 550, 800];
+var node16 = [-900, 50, -900];
+var node17 = [-900, 50, -800];
+var node18 = [-900, 550,-900];
+var node19 = [-900, 550,-800];
+var node20 = [-800, 50, -900];
+var node21 = [-800, 50, -800];
+var node22 = [-800, 550, -900];
+var node23 = [-800, 550, -800];
 
 var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15, node16, node17, node18, node19, node20, node21, node22, node23];
 
@@ -144,7 +144,7 @@ var lightPoint = [0, 350, 0];
 var lightPoint2 = [900, 10, -900];
 var lightVector = [0, 1, 2];
 var lights = [lightPoint,lightPoint2];
-var pixelSize = 6;
+var pixelSize = 5;
 
 var pixelData = null;
 
@@ -335,7 +335,7 @@ function UpdatePlayerMovement(){
     }
     vely *= velYConstant;
     velz *= velZConstant;
-    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz], camera)
+    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz])
     camera[0] = rotateY[0];
     camera[2] = rotateY[2];
     camera[1] += vely;
@@ -459,9 +459,9 @@ function traceToReflection(intersectionP, id, lightPoint, light) {
                     rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light );
                     var Lightvector = normaliseVector(subtractVectors(light, intersection));
                     var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
-                    var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                    var PointLightIntensity = Math.abs(dotProduct(normalToPlaneVector, Lightvector));
                     if(PointLightIntensity<0){
-                        PointLightIntensity = 0;
+                        continue;
                     }
                         // Possible Figure
                     
@@ -540,8 +540,8 @@ function draw(){
             var Px = pixelSize * x - camera[0] * 0.5;
             var Py = pixelSize * y - camera[1] * 0.5;
             var Pz = camera[2] + focalLength;
-            var P = rotateX3D(totalRotX, [Px, Py, Pz], camera);
-            P = rotateY3D(totalRotY, P, camera);
+            var P = rotateX3D(totalRotX, [Px, Py, Pz]);
+            P = rotateY3D(totalRotY, P);
             P = [P[0], P[1], P[2]]
                 for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
                     var object = objects[objectIndex];
@@ -567,13 +567,12 @@ function draw(){
                                 for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
                                     var light = lights[lightIndex];
                                     rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
-                                    //var rgbRef = null;
                                     var Lightvector = normaliseVector(subtractVectors(light, intersection));
                                     var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                                    if (PointLightIntensity< 0){
-                                        PointLightIntensity = 0;
+                                    if (objectDat.isReflect){
+                                        rgb = traceToReflection(camera, objectDat.id, P, light)
+                                        
                                     }
-                                    
                                     
                                     FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]
                                     
@@ -842,7 +841,7 @@ function draw(){
     }
 }
 
-var rotateZ3D = function (theta, node, camera) {
+var rotateZ3D = function (theta, node) {
     var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
@@ -853,7 +852,7 @@ var rotateZ3D = function (theta, node, camera) {
     return nodeT;
 };
 
-var rotateX3D = function (theta, node, camera) {
+var rotateX3D = function (theta, node) {
     var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
@@ -865,7 +864,7 @@ var rotateX3D = function (theta, node, camera) {
     
 };
 
-var rotateY3D = function (theta, node, camera) {
+var rotateY3D = function (theta, node) {
     var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
