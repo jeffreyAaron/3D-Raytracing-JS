@@ -93,6 +93,7 @@ var roomData = {
         g: 210,
         b: 210
     },
+    alpha: 1,
     isTransparent: false,
     collide:false
 }
@@ -104,7 +105,7 @@ var platformData = {
         b: 245
     },
     isTransparent: true,
-    alpha: 0.6,
+    alpha: 0.2,
     collide: true,
     x: -500,
     dx: 510,
@@ -123,6 +124,7 @@ var boxData = {
         b: 77
     },
     isTransparent: false,
+    alpha: 1,
     collide: false,
 
 }
@@ -443,7 +445,7 @@ function traceToTransparency(intersectionP, id, lightPoint, color, light, alpha)
         var object = objects[objectIndex];
         var objectDat = objectData[objectIndex];
         if(objectDat.id === id){
-            continue;
+            //continue;
         }
         for (let tri = 0; tri < object.length; tri++) {
             var triangle = object[tri];
@@ -517,7 +519,10 @@ function traceToLight(intersectionP, id, firstColor, lightPoint){
 
             if (isInside) {
                 // Shadow
-                var FinalLight = 0.2;
+                var FinalLight = (1-objectDat.alpha);
+                if (objectDat.alpha === 1) {
+                    FinalLight = 0.2;
+                }
                 return [firstColor[0] * FinalLight, firstColor[1] * FinalLight, firstColor[2] * FinalLight, false]
             }
 
@@ -575,6 +580,9 @@ function draw(){
                                     var Lightvector = normaliseVector(subtractVectors(light, intersection));
                                     var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
                                     if (objectDat.isTransparent){
+
+                                        
+                                        
                                         rgb = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha)
                                         PointLightIntensity = 1;
                                     }
