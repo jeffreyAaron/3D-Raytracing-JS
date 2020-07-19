@@ -147,7 +147,7 @@ var lightPoint = [0, 350, 0];
 var lightPoint2 = [450, 100, -450];
 var lightVector = [0, 1, 2];
 var lights = [lightPoint,lightPoint2];
-var pixelSize = 3;
+var pixelSize = 1;
 
 var pixelData = null;
 
@@ -158,16 +158,11 @@ Array.prototype.min = function () {
     return Math.min.apply(null, this);
 };
 
-function round3(num){
-    
-    return num;
-}
-
 function inverseMatrix(mat){
-    var a = round3(mat[0][0]), b = round3(mat[0][1]), c = round3(mat[0][2]), d = round3(mat[1][0]), e = round3(mat[1][1]), f = round3(mat[1][2]), g = round3(mat[2][0]), h = round3(mat[2][1]), i = round3(mat[2][2]);
+    var a =  mat[0][0], b =  mat[0][1], c =  mat[0][2], d =  mat[1][0], e =  mat[1][1], f =  mat[1][2], g =  mat[2][0], h =  mat[2][1], i =  mat[2][2];
 
     var v00 = e * i - f * h, v01 = c * h - b * i, v02 = b * f - c * e, v10 = f * g - d * i, v11 = a * i - c * g, v12 = c * d - a * f, v20 = d * h - e * g, v21 = b * g - a * h, v22 = a * e - b * d;
-    var det = round3(a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g));
+    var det =  a*(e*i-f*h)-b*(d*i-f*g)+c*(d*h-e*g);
     var matInv = [[v00/det, v01/det, v02/det], [v10/det, v11/det, v12/det], [v20/det, v21/det, v22/det]];
     return matInv;
 }
@@ -194,14 +189,14 @@ var equationOfAPlane = function (a) {
     var v32 = v1[2] * v2[0] - v1[0] * v2[2];
     var v33 = v1[0] * v2[1] - v1[1] * v2[0];
 
-    var d = -round3(v31 * n1[0] + v32 * n1[1] + v33 * n1[2])
+    var d = -(v31 * n1[0] + v32 * n1[1] + v33 * n1[2])
     var v3 = [
         v31, v32, v33, d
     ];
     return v3;
 };
 var dotProduct = function (v1, v2) {
-    return round3(v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]);
+    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 };
 var movement = {
     up: false,
@@ -923,8 +918,8 @@ var rotateZ3D = function (theta, node) {
     var cosTheta = Math.cos(theta);
     var x = node[0]-camera[0];
     var y = node[1]-camera[1];
-    nodeT[0] = round3(x * cosTheta - y * sinTheta + camera[0]);
-    nodeT[1] = round3(y * cosTheta + x * sinTheta + camera[1]);
+    nodeT[0] = x * cosTheta - y * sinTheta + camera[0];
+    nodeT[1] = y * cosTheta + x * sinTheta + camera[1];
     return nodeT;
 };
 
@@ -934,8 +929,8 @@ var rotateX3D = function (theta, node) {
     var cosTheta = Math.cos(theta);
     var y = node[1]-camera[1];
     var z = node[2] - camera[2];
-    nodeT[1] = round3(y * cosTheta - z * sinTheta + camera[1]);
-    nodeT[2] = round3(z * cosTheta + y * sinTheta + camera[2]);
+    nodeT[1] = y * cosTheta - z * sinTheta + camera[1];
+    nodeT[2] = z * cosTheta + y * sinTheta + camera[2];
     return nodeT;
     
 };
@@ -946,8 +941,8 @@ var rotateY3D = function (theta, node) {
     var cosTheta = Math.cos(theta);
     var x = node[0] - camera[0];
     var z = node[2] - camera[2];
-    nodeT[0] = round3(x * cosTheta + z * sinTheta + camera[0]);
-    nodeT[2] = round3(z * cosTheta - x * sinTheta + camera[2]);
+    nodeT[0] = x * cosTheta + z * sinTheta + camera[0];
+    nodeT[2] = z * cosTheta - x * sinTheta + camera[2];
     return nodeT;
    
 };
