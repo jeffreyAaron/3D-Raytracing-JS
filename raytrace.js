@@ -144,10 +144,10 @@ var focalLength = 400;
 let camera = [500, 400, 500];
 var rot = [0, 0, 0];
 var lightPoint = [0, 350, 0];
-var lightPoint2 = [900, 10, -900];
+var lightPoint2 = [450, 100, -450];
 var lightVector = [0, 1, 2];
 var lights = [lightPoint,lightPoint2];
-var pixelSize = 1;
+var pixelSize = 3;
 
 var pixelData = null;
 
@@ -413,6 +413,29 @@ function calcIntersection(x, y, z, triangle, equation, cameras){
     return [Ix, Iy, Iz, n];
 }
 
+function calcSphereIntersection(P, cameras, point, radius) {
+    var Cx = cameras[0];
+    var Cy = cameras[1];
+    var Cz = cameras[2];
+    var Px = P[0];
+    var Py = P[1];
+    var Pz = P[2];
+    var Eo = normaliseVector(subtractVectors(point, cameras));
+    var v = dotProduct(EO, normaliseVector(subtractVectors(cameras, P)));
+    var disc = radius * radius - (dotProduct(EO, EO)-v*v);
+    if(disc < 0){
+        return [0, false]
+    }
+    var d = Math.sqrt(disc);
+    var P1 = [0,0,0];
+    P1[0] = E[0] + (v - d) * V[0];
+    P1[1] = E[1] + (v - d) * V[1];
+    P1[2] = E[2] + (v - d) * V[2];
+    // -(Ix - Cx)/(Cx-Px) = n;
+    var n = (P1[0] - Cx) / (Cx - Px);
+    return [n, true];
+}
+
 function checkIfInsideTriangle(triangle, point){
     var n1 = nodes[triangle[0]];
     var n2 = nodes[triangle[1]];
@@ -437,15 +460,24 @@ function checkIfInsideTriangle(triangle, point){
     return true;
 }
 
-function traceToTransparency(intersectionP, id, lightPoint, color, light, alpha) {
+function traceToTransparency(intersectionP, id, lightPoint, color, light, alpha, toObject, near) {
     var triangleToRender = 10000000000000;
+    if(near){
+        triangleToRender = -10000000000000;
+    }
     var lightToRender;
     var isTriangle = false;
     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
         var object = objects[objectIndex];
         var objectDat = objectData[objectIndex];
-        if(objectDat.id === id){
-            //continue;
+        if(toObject){
+            if(objectDat.id !== id){
+                continue;
+            }
+        }else{
+            if (objectDat.id === id) {
+                continue;
+            }
         }
         for (let tri = 0; tri < object.length; tri++) {
             var triangle = object[tri];
@@ -455,25 +487,53 @@ function traceToTransparency(intersectionP, id, lightPoint, color, light, alpha)
                 continue;
             }
             var isInside = checkIfInsideTriangle(triangle, intersection);
-
-            if (triangleToRender > intersection[3]) {
-                if (isInside) {
-                    //console.log(objectDat.id)
-                    rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light );
-                    var Lightvector = normaliseVector(subtractVectors(light, intersection));
-                    var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
-                    var PointLightIntensity =dotProduct(normalToPlaneVector, Lightvector);
-                    //PointLightIntensity = 1;
+            if(near){
+                if (triangleToRender < intersection[3]) {
+                    if (isInside) {
+                        //console.log(objectDat.id)
+                        rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
+                        var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                        var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                        var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                        if (toObject) {
+                            PointLightIntensity = -PointLightIntensity;
+                        }
+                        //PointLightIntensity = 1;
                         // Possible Figure
-                    
-                    lightToRender = [
-                        ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
-                        ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
-                        ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
+
+                        lightToRender = [
+                            ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
+                            ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
+                            ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
                         ];
-                    triangleToRender = intersection[3];
-                    isTriangle = true;
-                    
+                        triangleToRender = intersection[3];
+                        isTriangle = true;
+
+                    }
+                }
+            }else{
+                if (triangleToRender > intersection[3]) {
+                    if (isInside) {
+                        //console.log(objectDat.id)
+                        rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light );
+                        var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                        var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                        var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                        if(toObject){
+                            PointLightIntensity = -PointLightIntensity;
+                        }
+                        //PointLightIntensity = 1;
+                            // Possible Figure
+                        
+                        lightToRender = [
+                            ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
+                            ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
+                            ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
+                            ];
+                        triangleToRender = intersection[3];
+                        isTriangle = true;
+                        
+                    }
                 }
             }
 
@@ -565,7 +625,7 @@ function draw(){
                         
                         var isInside = checkIfInsideTriangle(triangle, intersection);
                         
-                        var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
+                        var normalToPlaneVector = normaliseVector(equation);
                         if (isInside && intersection[3] > 0){
                             if (triangleToRender > intersection[3]) {
                                 var rgb;
@@ -580,10 +640,11 @@ function draw(){
                                     var Lightvector = normaliseVector(subtractVectors(light, intersection));
                                     var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
                                     if (objectDat.isTransparent){
-
                                         
-                                        
-                                        rgb = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha)
+                                        var rgb1 = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha, true, false);
+                                        var rgb2 = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha, false, false);
+                                        var rgb3 = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha, true, true);
+                                        rgb = [(rgb1[0] + rgb2[0] + rgb3[0]) / 3, (rgb1[1] + rgb2[1] + rgb3[1]) / 3, (rgb1[2] + rgb2[2] + rgb3[2]) / 3]
                                         PointLightIntensity = 1;
                                     }
 
