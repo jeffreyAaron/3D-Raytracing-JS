@@ -134,7 +134,7 @@ var objectData = [roomData, platformData, boxData]
 
 
 
-var width = 900;
+var width = 900; //document.height is obsolete;
 var height = 600;
 var focalLength = 400;
 
@@ -291,6 +291,14 @@ window.onload = () => {
     var canvas = document.getElementById("canvas");
     
     ctx = canvas.getContext("2d");
+
+    canvas.height = document.body.clientHeight;
+    canvas.width = document.body.clientWidth;
+    canvas.height = 400;
+    canvas.width = 400;
+
+    height = canvas.height;
+    width = canvas.width;
     
     pixelData = new Uint8ClampedArray(height * width * 4);
 
@@ -458,23 +466,26 @@ function checkIfInsideTriangle(triangle, point){
 function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject, near) {
     var intersectionP = [round3(ints[0]), round3(ints[1]), round3(ints[2])]
     var triangleToRender = Infinity;
-    if(near){
+    if (near) {
         triangleToRender = -Infinity;
     }
     var lightToRender;
+    var lightNearToRender;
+    var lightObjectToRender;
     var isTriangle = false;
     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
         var object = objects[objectIndex];
         var objectDat = objectData[objectIndex];
-        if(toObject){
-            if(objectDat.id !== id){
+        if (toObject) {
+            if (objectDat.id !== id) {
                 continue;
             }
-        }else{
+        } else {
             if (objectDat.id === id) {
                 continue;
             }
         }
+        
         for (let tri = 0; tri < object.length; tri++) {
             var triangle = object[tri];
             var equation = planeBuffer[objectIndex][tri];
@@ -483,8 +494,8 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
                 continue;
             }
             var isInside = checkIfInsideTriangle(triangle, intersection);
-            if(near){
-                if (triangleToRender < intersection[3]) {
+            if (near) {
+            if (triangleToRender < intersection[3]) {
                     if (isInside) {
                         //console.log(objectDat.id)
                         rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
@@ -507,31 +518,31 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
 
                     }
                 }
-            }else{
-                if (triangleToRender > intersection[3]) {
-                    if (isInside) {
-                        //console.log(objectDat.id)
-                        rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light );
-                        var Lightvector = normaliseVector(subtractVectors(light, intersection));
-                        var normalToPlaneVector = normaliseVector(equation.slice(0, 3));
-                        var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                        if(toObject){
-                            PointLightIntensity = -PointLightIntensity;
-                        }
-                        
+            } else {
+                    if (triangleToRender > intersection[3]) {
+                        if (isInside) {
+                            //console.log(objectDat.id)
+                            rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
+                            var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                            var normalToPlaneVector = normalBuffer[objectIndex][tri];
+                            var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                            if (toObject) {
+                                PointLightIntensity = -PointLightIntensity;
+                            }
+                            //PointLightIntensity = 1;
                             // Possible Figure
-                        
-                        lightToRender = [
-                            ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
-                            ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
-                            ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
+
+                            lightToRender = [
+                                ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
+                                ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
+                                ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
                             ];
-                        triangleToRender = intersection[3];
-                        isTriangle = true;
-                        
+                            triangleToRender = intersection[3];
+                            isTriangle = true;
+
+                        }
                     }
                 }
-            }
 
         }
     }
