@@ -144,7 +144,7 @@ var lightPoint = [200, 350, 200];
 var lightPoint2 = [450, 250, -450];
 
 var lights = [lightPoint2, lightPoint];
-var pixelSize = 2;
+var pixelSize = 1;
 
 var pixelData = null;
 
@@ -294,8 +294,8 @@ window.onload = () => {
 
     canvas.height = document.body.clientHeight;
     canvas.width = document.body.clientWidth;
-    canvas.height = 600;
-    canvas.width = 900;
+    //canvas.height = 600;
+    //canvas.width = 900;
 
     height = canvas.height;
     width = canvas.width;
