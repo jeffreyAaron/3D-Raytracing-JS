@@ -144,7 +144,7 @@ var lightPoint = [200, 350, 200];
 var lightPoint2 = [450, 250, -450];
 
 var lights = [lightPoint2, lightPoint];
-var pixelSize = 1;
+var pixelSize = 2;
 
 var pixelData = null;
 
@@ -294,8 +294,8 @@ window.onload = () => {
 
     canvas.height = document.body.clientHeight;
     canvas.width = document.body.clientWidth;
-    canvas.height = 400;
-    canvas.width = 400;
+    canvas.height = 600;
+    canvas.width = 900;
 
     height = canvas.height;
     width = canvas.width;
@@ -555,6 +555,7 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
 
     
 }
+
 function traceToLight(ints, id, firstColor, lightPoint) {
     var intersectionP = [round3(ints[0]), round3(ints[1]), round3(ints[2])]
     var P = lightPoint;
@@ -584,7 +585,7 @@ function traceToLight(ints, id, firstColor, lightPoint) {
             var isInside = checkIfInsideTriangle(triangle, intersection);
 
             if (isInside) {
-                // Shadow
+                
                 if(objectDat.isTransparent){
                     var FinalLight = (1 - objectDat.alpha);
                     if (objectDat.alpha === 1) {
@@ -606,10 +607,8 @@ function traceToLight(ints, id, firstColor, lightPoint) {
     return [firstColor[0], firstColor[1], firstColor[2], true];
 }
 
-
-var fov = 1;
+var fov = 2;
 function draw(){
-    
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
     for (let y = 0; y < ylim; y++) {
@@ -622,7 +621,9 @@ function draw(){
             var Pz = camera[2] + focalLength;
             var P = rotateX3D(totalRotX, [Px, Py, Pz]);
             P = rotateY3D(totalRotY, P);
-            P = [round3(P[0]), round3(P[1]), round3(P[2])]
+            P = [P[0], P[1], P[2]]
+            
+            var triIndex = 0;
                 for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
                     var object = objects[objectIndex];
                     var objectDat = objectData[objectIndex];
@@ -631,7 +632,6 @@ function draw(){
                         var triangle = object[tri];
                         var equation = planeBuffer[objectIndex][tri];
                         var intersection = calcIntersection(P[0], P[1], P[2], equation, camera);
-                        
                         if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
                             continue;
                         }
@@ -671,7 +671,7 @@ function draw(){
                                 isTriangle = true;
                             }
                         }
-                        
+                        triIndex++;
                     }
                 }
                     if (isTriangle){
@@ -684,61 +684,74 @@ function draw(){
                         var xTemp = x * pixelSize;
 
                         var index = 0;
-                        //
-                        index = (yTemp* width + xTemp) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
 
-                        index = (yTemp * width + (xTemp + 1)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        for (let y1 = 0; y1 < pixelSize; y1++) {
+                            for (let x1 = 0; x1 < pixelSize; x1++) {
+                                var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
-                        index = (yTemp * width + (xTemp + 2)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                                pixelData[index + 0] = r;
+                                pixelData[index + 1] = g;
+                                pixelData[index + 2] = b;
+                                pixelData[index + 3] = 255;
 
-                        //
-                        index = ((yTemp + 1) * width + xTemp ) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                            }
 
-                        index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        }
+                        // //
+                        // index = (yTemp* width + xTemp) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = (yTemp * width + (xTemp + 1)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 2) * width + xTemp) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = (yTemp * width + (xTemp + 2)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // //
+                        // index = ((yTemp + 1) * width + xTemp ) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
+
+                        // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
+
+                        // index = ((yTemp + 2) * width + xTemp) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
+
+                        // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
+
+                        // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
                         
                     }else{
@@ -752,74 +765,74 @@ function draw(){
 
                         var index = 0;
 
-                        //
-                        index = (yTemp * width + xTemp) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // //
+                        // index = (yTemp * width + xTemp) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = (yTemp * width + (xTemp + 1)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = (yTemp * width + (xTemp + 1)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = (yTemp * width + (xTemp + 2)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = (yTemp * width + (xTemp + 2)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        //
-                        index = ((yTemp + 1) * width + xTemp) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // //
+                        // index = ((yTemp + 1) * width + xTemp) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 2) * width + xTemp) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = ((yTemp + 2) * width + xTemp) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                        // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
+                        // pixelData[index + 0] = r;
+                        // pixelData[index + 1] = g;
+                        // pixelData[index + 2] = b;
+                        // pixelData[index + 3] = 255;
 
-                        // for (let y1 = 0; y1 < pixelSize; y1++) {
-                        //     for (let x1 = 0; x1 < pixelSize; x1++) {
-                        //         var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                        for (let y1 = 0; y1 < pixelSize; y1++) {
+                            for (let x1 = 0; x1 < pixelSize; x1++) {
+                                var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
-                        //         pixelData[index + 0] = 255;
-                        //         pixelData[index + 1] = 255;
-                        //         pixelData[index + 2] = 255;
-                        //         pixelData[index + 3] = 255;
+                                pixelData[index + 0] = 255;
+                                pixelData[index + 1] = 255;
+                                pixelData[index + 2] = 255;
+                                pixelData[index + 3] = 255;
 
-                        //     }
+                            }
 
-                        // }
+                        }
                     }
             
 
