@@ -148,8 +148,8 @@ var lightPoint = [200, 350, 200];
 var lightPoint2 = [450, 250, -450];
 
 var lights = [lightPoint2, lightPoint];
-var pixelSize = 1;
-var antiA = 2;
+var pixelSize = 3;
+var antiA = 1;
 
 var pixelData = null;
 
@@ -421,8 +421,8 @@ function ViewFrames(){
     
     let imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-    
     requestAnimationFrame(ViewFrames);
+    
 }
 function calcIntersection(x, y, z, equation, cameras){
     var a = equation[0];
@@ -563,9 +563,7 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
     
 }
 
-function traceToLight(ints, id, firstColor, lightPoint) {
-    var intersectionP = [ints[0], ints[1], ints[2]]
-    var P = lightPoint;
+function traceToLight(intersectionP, id, firstColor, lightPoint) {
     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
         var object = objects[objectIndex];
         var objectDat = objectData[objectIndex];
@@ -579,7 +577,7 @@ function traceToLight(ints, id, firstColor, lightPoint) {
         for (let tri = 0; tri < object.length; tri++) {
             var triangle = object[tri];
             var equation = planeBuffer[objectIndex][tri];
-            var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], equation, P);
+            var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], equation, lightPoint);
             if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
                 continue;
             }
@@ -618,6 +616,8 @@ function traceToLight(ints, id, firstColor, lightPoint) {
     return [firstColor[0], firstColor[1], firstColor[2], true];
 }
 
+
+
 function draw(){
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
@@ -650,10 +650,10 @@ function draw(){
                                 
                                 var isInside = checkIfInsideTriangle(triangle, intersection);
                                 
-                            var normalToPlaneVector = normalBuffer[objectIndex][tri];
-
+                                
                                 if (isInside && intersection[3] > 0){
                                     if (triangleToRender > intersection[3]) {
+                                        var normalToPlaneVector = normalBuffer[objectIndex][tri];
                                         var rgb;
                                         var FinalRGB = [0, 0, 0]
                                         for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
@@ -681,7 +681,7 @@ function draw(){
                                             
                                             
                                         } 
-                                        lightToRender = [Math.ceil(FinalRGB[0]) / lights.length, Math.ceil(FinalRGB[1]) / lights.length, Math.ceil(FinalRGB[2]) / lights.length];
+                                        lightToRender = [FinalRGB[0] / lights.length, FinalRGB[1] / lights.length, FinalRGB[2] / lights.length];
                                         triangleToRender = intersection[3];
                                         isTriangle = true;
                                     }
@@ -697,19 +697,19 @@ function draw(){
             }
 
             if (isTriangle) {
+                var numSamples = Math.pow(antiA, 2);
+                var r = Math.ceil(AvglightToRender[0] / numSamples);
+                var g = Math.ceil(AvglightToRender[1] / numSamples);
+                var b = Math.ceil(AvglightToRender[2] / numSamples);
 
-                var r = AvglightToRender[0] / (antiA * antiA);
-                var g = AvglightToRender[1] / (antiA * antiA);
-                var b = AvglightToRender[2] / (antiA * antiA);
-
-                var yTemp = y * pixelSize;
-                var xTemp = x * pixelSize;
+                //var yTemp = y * pixelSize;
+                //var xTemp = x * pixelSize;
 
                 var index = 0;
 
                 for (let y1 = 0; y1 < pixelSize; y1++) {
                     for (let x1 = 0; x1 < pixelSize; x1++) {
-                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                        index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
                         pixelData[index + 0] = r;
                         pixelData[index + 1] = g;
@@ -782,8 +782,8 @@ function draw(){
                 var g = 255;
                 var b = 255;
 
-                var yTemp = y * pixelSize;
-                var xTemp = x * pixelSize;
+                //var yTemp = y * pixelSize;
+                //var xTemp = x * pixelSize;
 
                 var index = 0;
 
@@ -865,36 +865,33 @@ function draw(){
 }
 
 var rotateZ3D = function (theta, node) {
-    var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
     var x = node[0]-camera[0];
     var y = node[1]-camera[1];
-    nodeT[0] = x * cosTheta - y * sinTheta + camera[0];
-    nodeT[1] = y * cosTheta + x * sinTheta + camera[1];
-    return nodeT;
+    node[0] = x * cosTheta - y * sinTheta + camera[0];
+    node[1] = y * cosTheta + x * sinTheta + camera[1];
+    return node;
 };
 
 var rotateX3D = function (theta, node) {
-    var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
     var y = node[1]-camera[1];
     var z = node[2] - camera[2];
-    nodeT[1] = y * cosTheta - z * sinTheta + camera[1];
-    nodeT[2] = z * cosTheta + y * sinTheta + camera[2];
-    return nodeT;
+    node[1] = y * cosTheta - z * sinTheta + camera[1];
+    node[2] = z * cosTheta + y * sinTheta + camera[2];
+    return node;
     
 };
 
 var rotateY3D = function (theta, node) {
-    var nodeT = node;
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
     var x = node[0] - camera[0];
     var z = node[2] - camera[2];
-    nodeT[0] = x * cosTheta + z * sinTheta + camera[0];
-    nodeT[2] = z * cosTheta - x * sinTheta + camera[2];
-    return nodeT;
+    node[0] = x * cosTheta + z * sinTheta + camera[0];
+    node[2] = z * cosTheta - x * sinTheta + camera[2];
+    return node;
    
 };
