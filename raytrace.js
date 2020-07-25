@@ -1,32 +1,32 @@
-var node0 = [-1000, 0, -1000];
-var node1 = [-1000, 0, 1000];
-var node2 = [-1000, 600, -1000];
-var node3 = [-1000, 600, 1000];
-var node4 = [1000, 0, -1000];
-var node5 = [1000, 0, 1000];
-var node6 = [1000, 600, -1000];
-var node7 = [1000, 600, 1000];
-// Second Cube
-var node8 = [10, 50, -500];
-var node9 = [10, 50, 510];
-var node10 = [10, 150, -500];
-var node11 = [10, 150, 510];
-var node12 = [-500, 50, -500];
-var node13 = [-500, 50, 510];
-var node14 = [-500, 150, -500];
-var node15 = [-500, 150, 510];
+// var node0 = [-1000, 0, -1000];
+// var node1 = [-1000, 0, 1000];
+// var node2 = [-1000, 600, -1000];
+// var node3 = [-1000, 600, 1000];
+// var node4 = [1000, 0, -1000];
+// var node5 = [1000, 0, 1000];
+// var node6 = [1000, 600, -1000];
+// var node7 = [1000, 600, 1000];
+// // Second Cube
+// var node8 = [10, 50, -500];
+// var node9 = [10, 50, 510];
+// var node10 = [10, 150, -500];
+// var node11 = [10, 150, 510];
+// var node12 = [-500, 50, -500];
+// var node13 = [-500, 50, 510];
+// var node14 = [-500, 150, -500];
+// var node15 = [-500, 150, 510];
 
-var node16 = [-900, 50, -900];
-var node17 = [-900, 50, -800];
-var node18 = [-900, 550,-900];
-var node19 = [-900, 550,-800];
-var node20 = [-800, 50, -900];
-var node21 = [-800, 50, -800];
-var node22 = [-800, 550, -900];
-var node23 = [-800, 550, -800];
+// var node16 = [-900, 50, -900];
+// var node17 = [-900, 50, -800];
+// var node18 = [-900, 550,-900];
+// var node19 = [-900, 550,-800];
+// var node20 = [-800, 50, -900];
+// var node21 = [-800, 50, -800];
+// var node22 = [-800, 550, -900];
+// var node23 = [-800, 550, -800];
 
-var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15, node16, node17, node18, node19, node20, node21, node22, node23];
-
+//var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11, node12, node13, node14, node15, node16, node17, node18, node19, node20, node21, node22, node23];
+var nodes = [];
 // var edge0 = [0, 1];
 // var edge1 = [1, 3];
 // var edge2 = [3, 2];
@@ -41,99 +41,102 @@ var nodes = [node0, node1, node2, node3, node4, node5, node6, node7, node8, node
 // var edge11 = [3, 7];
 // var edges = [edge0, edge1, edge2, edge3, edge4, edge5, edge6, edge7, edge8, edge9, edge10, edge11];
 
-var tri0 = [4, 2, 0];
-var tri1 = [4, 6, 2];
-var tri2 = [7, 6, 4];
-var tri3 = [4, 5, 7];
-var tri4 = [5, 1, 7];
-var tri5 = [3, 7, 1];
-var tri6 = [0, 1, 4];
-var tri7 = [4, 1, 5];
-var tri8 = [0, 2, 3];
-var tri9 = [3, 1, 0];
-var tri10 = [7, 3, 6];
-var tri11 = [2, 6, 3];
+// var tri0 = [4, 2, 0];
+// var tri1 = [4, 6, 2];
+// var tri2 = [7, 6, 4];
+// var tri3 = [4, 5, 7];
+// var tri4 = [5, 1, 7];
+// var tri5 = [3, 7, 1];
+// var tri6 = [0, 1, 4];
+// var tri7 = [4, 1, 5];
+// var tri8 = [0, 2, 3];
+// var tri9 = [3, 1, 0];
+// var tri10 = [7, 3, 6];
+// var tri11 = [2, 6, 3];
 
-var tri12 = [4 + 8, 2 + 8, 0 + 8];
-var tri13 = [4 + 8, 6 + 8, 2 + 8];
-var tri14 = [7 + 8, 6 + 8, 4 + 8];
-var tri15 = [4 + 8, 5 + 8, 7 + 8];
-var tri16 = [5 + 8, 1 + 8, 7 + 8];
-var tri17 = [3 + 8, 7 + 8, 1 + 8];
-var tri18 = [0 + 8, 1 + 8, 4 + 8];
-var tri19 = [4 + 8, 1 + 8, 5 + 8];
-var tri20 = [0 + 8, 2 + 8, 3 + 8];
-var tri21 = [3 + 8, 1 + 8, 0 + 8];
-var tri22 = [7 + 8, 3 + 8, 6 + 8];
-var tri23 = [2 + 8, 6 + 8, 3 + 8];
+// var tri12 = [4 + 8, 2 + 8, 0 + 8];
+// var tri13 = [4 + 8, 6 + 8, 2 + 8];
+// var tri14 = [7 + 8, 6 + 8, 4 + 8];
+// var tri15 = [4 + 8, 5 + 8, 7 + 8];
+// var tri16 = [5 + 8, 1 + 8, 7 + 8];
+// var tri17 = [3 + 8, 7 + 8, 1 + 8];
+// var tri18 = [0 + 8, 1 + 8, 4 + 8];
+// var tri19 = [4 + 8, 1 + 8, 5 + 8];
+// var tri20 = [0 + 8, 2 + 8, 3 + 8];
+// var tri21 = [3 + 8, 1 + 8, 0 + 8];
+// var tri22 = [7 + 8, 3 + 8, 6 + 8];
+// var tri23 = [2 + 8, 6 + 8, 3 + 8];
 
-var tri24 = [4 + 16, 0 + 16, 2 + 16];
-var tri25 = [4 + 16, 2 + 16, 6 + 16];
-var tri26 = [7 + 16, 4 + 16, 6 + 16];
-var tri27 = [4 + 16, 7 + 16, 5 + 16];
-var tri28 = [5 + 16, 7 + 16, 1 + 16];
-var tri29 = [3 + 16, 1 + 16, 7 + 16];
-var tri30 = [0 + 16, 4 + 16, 1 + 16];
-var tri31 = [4 + 16, 5 + 16, 1 + 16];
-var tri32 = [0 + 16, 3 + 16, 2 + 16];
-var tri33 = [3 + 16, 0 + 16, 1 + 16];
-var tri34 = [7 + 16, 6 + 16, 3 + 16];
-var tri35 = [2 + 16, 3 + 16, 6 + 16];
+// var tri24 = [4 + 16, 0 + 16, 2 + 16];
+// var tri25 = [4 + 16, 2 + 16, 6 + 16];
+// var tri26 = [7 + 16, 4 + 16, 6 + 16];
+// var tri27 = [4 + 16, 7 + 16, 5 + 16];
+// var tri28 = [5 + 16, 7 + 16, 1 + 16];
+// var tri29 = [3 + 16, 1 + 16, 7 + 16];
+// var tri30 = [0 + 16, 4 + 16, 1 + 16];
+// var tri31 = [4 + 16, 5 + 16, 1 + 16];
+// var tri32 = [0 + 16, 3 + 16, 2 + 16];
+// var tri33 = [3 + 16, 0 + 16, 1 + 16];
+// var tri34 = [7 + 16, 6 + 16, 3 + 16];
+// var tri35 = [2 + 16, 3 + 16, 6 + 16];
 
-var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11, tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23, tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
+// var triangles = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11, tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23, tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
 
-var room = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11];
-var platform = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
-var box = [tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
+//var room = [tri0, tri1, tri2, tri3, tri4, tri5, tri6, tri7, tri8, tri9, tri10, tri11];
+//var platform = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+//var box = [tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33, tri34, tri35];
 
-var roomData = {
-    id: 0,
-    shadow:false,
-    color: {
-        r: 210,
-        g: 210,
-        b: 210
-    },
-    alpha: 1,
-    isTransparent: false,
-    collide:false
-}
-var platformData = {
-    id: 1,
-    shadow: true,
-    color: {
-        r: 66,
-        g: 135,
-        b: 245
-    },
-    isTransparent: true,
-    alpha: 0.2,
-    collide: true,
-    x: -500,
-    dx: 510,
-    y: 50, 
-    dy: 100,
-    z: -500,
-    dz: 1010
+// var roomData = {
+//     id: 0,
+//     shadow:false,
+//     color: {
+//         r: 210,
+//         g: 210,
+//         b: 210
+//     },
+//     alpha: 1,
+//     isTransparent: false,
+//     collide:false
+// }
+// var platformData = {
+//     id: 1,
+//     shadow: true,
+//     color: {
+//         r: 66,
+//         g: 135,
+//         b: 245
+//     },
+//     isTransparent: true,
+//     alpha: 0.2,
+//     collide: true,
+//     x: -500,
+//     dx: 510,
+//     y: 50, 
+//     dy: 100,
+//     z: -500,
+//     dz: 1010
     
-}
+// }
 
-var boxData = {
-    id: 2,
-    shadow: true,
-    color: {
-        r: 255,
-        g: 77,
-        b: 77
-    },
-    isTransparent: false,
-    alpha: 1,
-    collide: false,
+// var boxData = {
+//     id: 2,
+//     shadow: true,
+//     color: {
+//         r: 255,
+//         g: 77,
+//         b: 77
+//     },
+//     isTransparent: false,
+//     alpha: 1,
+//     collide: false,
 
-}
+// }
 
-var objects = [room, platform, box]
-var objectData = [roomData, platformData, boxData]
+// var objects = [room, platform, box]
+// var objectData = [roomData, platformData, boxData]
+
+var objects = [];
+var objectData = [];
 
 
 
@@ -142,18 +145,188 @@ var height = 600;
 var focalLength = 400;
 
 var fov = 1;
-let camera = [500, 400, 500];
-var rot = [0, 0, 0];
+var camera = [500, 400, 500];
 var lightPoint = [200, 350, 200];
 var lightPoint2 = [450, 250, -450];
 
 var lights = [lightPoint2, lightPoint];
+
+//var lights = [];
 var pixelSize = 3;
 var antiA = 1;
 
 var pixelData = null;
 
 var transparencyEnabled = true;
+
+var triIndex = 0;
+
+function setUpWorldVars(Nwidth, Nheight, NfocalLength, Nfov){
+    canvas.height = Nheight;
+    canvas.width = Nwidth;
+    focalLength = NfocalLength;
+    fov = Nfov;
+}
+
+function addCuboid(id, x, y, z, dx, dy, dz, transparent, alpha, shadow, collide, r, g, b, reverse){
+    var boxData = {
+            id: id,
+            shadow: shadow,
+            color: {
+                r: r,
+                g: g,
+                b: b
+            },
+            x: x,
+            dx: dx,
+            y: y, 
+            dy: dy,
+            z: z,
+            dz: dz,
+            isTransparent: transparent,
+            alpha: alpha,
+            collide: collide,
+
+        }
+
+    var node0 = [x, y, z];
+    var node1 = [x, y, z + dz];
+    var node2 = [x, y + dy, z];
+    var node3 = [x, y + dy, z + dz];
+    var node4 = [x + dx, y, z];
+    var node5 = [x + dx, y, z + dz];
+    var node6 = [x + dx, y + dy, z];
+    var node7 = [x + dx, y + dy, z + dz];
+
+    nodes.push(node0);
+    nodes.push(node1);
+    nodes.push(node2);
+    nodes.push(node3);
+    nodes.push(node4);
+    nodes.push(node5);
+    nodes.push(node6);
+    nodes.push(node7);
+
+    if(reverse){
+        var tri12 = [4 + triIndex, 0 + triIndex, 2 + triIndex];
+        var tri13 = [4 + triIndex, 2 + triIndex, 6 + triIndex];
+        var tri14 = [7 + triIndex, 4 + triIndex, 6 + triIndex];
+        var tri15 = [4 + triIndex, 7 + triIndex, 5 + triIndex];
+        var tri16 = [5 + triIndex, 7 + triIndex, 1 + triIndex];
+        var tri17 = [3 + triIndex, 1 + triIndex, 7 + triIndex];
+        var tri18 = [0 + triIndex, 4 + triIndex, 1 + triIndex];
+        var tri19 = [4 + triIndex, 5 + triIndex, 1 + triIndex];
+        var tri20 = [0 + triIndex, 3 + triIndex, 2 + triIndex];
+        var tri21 = [3 + triIndex, 0 + triIndex, 1 + triIndex];
+        var tri22 = [7 + triIndex, 6 + triIndex, 3 + triIndex];
+        var tri23 = [2 + triIndex, 3 + triIndex, 6 + triIndex];
+    }else{
+        var tri12 = [4 + triIndex, 2 + triIndex, 0 + triIndex];
+        var tri13 = [4 + triIndex, 6 + triIndex, 2 + triIndex];
+        var tri14 = [7 + triIndex, 6 + triIndex, 4 + triIndex];
+        var tri15 = [4 + triIndex, 5 + triIndex, 7 + triIndex];
+        var tri16 = [5 + triIndex, 1 + triIndex, 7 + triIndex];
+        var tri17 = [3 + triIndex, 7 + triIndex, 1 + triIndex];
+        var tri18 = [0 + triIndex, 1 + triIndex, 4 + triIndex];
+        var tri19 = [4 + triIndex, 1 + triIndex, 5 + triIndex];
+        var tri20 = [0 + triIndex, 2 + triIndex, 3 + triIndex];
+        var tri21 = [3 + triIndex, 1 + triIndex, 0 + triIndex];
+        var tri22 = [7 + triIndex, 3 + triIndex, 6 + triIndex];
+        var tri23 = [2 + triIndex, 6 + triIndex, 3 + triIndex];
+    }
+    triIndex += 8;
+
+    var box = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+
+    objects.push(box);
+    objectData.push(boxData);
+
+}
+
+function addCuboidL(data, reverse) {
+    var id = data.id;
+    var shadow = data.shadow;
+    var r = data.color.r, g = data.color.g, b = data.color.b;
+    var x = data.x, dx = data.dx, y = data.y, dy = data.dy, z = data.z, dz = data.dz;
+    var boxData = {
+        id: id,
+        shadow: shadow,
+        color: {
+            r: r,
+            g: g,
+            b: b
+        },
+        x: x,
+        dx: dx,
+        y: y,
+        dy: dy,
+        z: z,
+        dz: dz,
+        isTransparent: data.isTransparent,
+        alpha: data.alpha,
+        collide: data.collide,
+        cx: data.cx,
+        cdx: data.cdx,
+        cy: data.cy,
+        cdy: data.cdy,
+        cz: data.cz,
+        cdz: data.cdz,
+    }
+
+    var node0 = [x, y, z];
+    var node1 = [x, y, z + dz];
+    var node2 = [x, y + dy, z];
+    var node3 = [x, y + dy, z + dz];
+    var node4 = [x + dx, y, z];
+    var node5 = [x + dx, y, z + dz];
+    var node6 = [x + dx, y + dy, z];
+    var node7 = [x + dx, y + dy, z + dz];
+
+    nodes.push(node0);
+    nodes.push(node1);
+    nodes.push(node2);
+    nodes.push(node3);
+    nodes.push(node4);
+    nodes.push(node5);
+    nodes.push(node6);
+    nodes.push(node7);
+
+    if (reverse) {
+        var tri12 = [4 + triIndex, 0 + triIndex, 2 + triIndex];
+        var tri13 = [4 + triIndex, 2 + triIndex, 6 + triIndex];
+        var tri14 = [7 + triIndex, 4 + triIndex, 6 + triIndex];
+        var tri15 = [4 + triIndex, 7 + triIndex, 5 + triIndex];
+        var tri16 = [5 + triIndex, 7 + triIndex, 1 + triIndex];
+        var tri17 = [3 + triIndex, 1 + triIndex, 7 + triIndex];
+        var tri18 = [0 + triIndex, 4 + triIndex, 1 + triIndex];
+        var tri19 = [4 + triIndex, 5 + triIndex, 1 + triIndex];
+        var tri20 = [0 + triIndex, 3 + triIndex, 2 + triIndex];
+        var tri21 = [3 + triIndex, 0 + triIndex, 1 + triIndex];
+        var tri22 = [7 + triIndex, 6 + triIndex, 3 + triIndex];
+        var tri23 = [2 + triIndex, 3 + triIndex, 6 + triIndex];
+    } else {
+        var tri12 = [4 + triIndex, 2 + triIndex, 0 + triIndex];
+        var tri13 = [4 + triIndex, 6 + triIndex, 2 + triIndex];
+        var tri14 = [7 + triIndex, 6 + triIndex, 4 + triIndex];
+        var tri15 = [4 + triIndex, 5 + triIndex, 7 + triIndex];
+        var tri16 = [5 + triIndex, 1 + triIndex, 7 + triIndex];
+        var tri17 = [3 + triIndex, 7 + triIndex, 1 + triIndex];
+        var tri18 = [0 + triIndex, 1 + triIndex, 4 + triIndex];
+        var tri19 = [4 + triIndex, 1 + triIndex, 5 + triIndex];
+        var tri20 = [0 + triIndex, 2 + triIndex, 3 + triIndex];
+        var tri21 = [3 + triIndex, 1 + triIndex, 0 + triIndex];
+        var tri22 = [7 + triIndex, 3 + triIndex, 6 + triIndex];
+        var tri23 = [2 + triIndex, 6 + triIndex, 3 + triIndex];
+    }
+
+    triIndex += 8;
+
+    var box = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23];
+
+    objects.push(box);
+    objectData.push(boxData);
+
+}
 
 
 Array.prototype.min = function () {
@@ -290,30 +463,37 @@ document.onmousemove = function (event) {
 }
 };
 
-
 var ctx;
-window.onload = () => {
+function load(){
     var canvas = document.getElementById("canvas");
-    
     ctx = canvas.getContext("2d");
-
-    //canvas.height = document.body.clientHeight;
-    //canvas.width = document.body.clientWidth;
-    //canvas.height = 400;
-    //canvas.width = 600;
-
-    //height = canvas.height;
-    //awidth = canvas.width;
-    
     pixelData = new Uint8ClampedArray(height * width * 4);
-
     PrepareBuffers();
-    
-    setTimeout(() => {
-        ViewFrames();
-        
-    }, 100);
 }
+
+
+// window.onload = () => {
+//     var canvas = document.getElementById("canvas");
+    
+//     ctx = canvas.getContext("2d");
+
+//     //canvas.height = document.body.clientHeight;
+//     //canvas.width = document.body.clientWidth;
+//     //canvas.height = 400;
+//     //canvas.width = 600;
+
+//     //height = canvas.height;
+//     //width = canvas.width;
+    
+//     pixelData = new Uint8ClampedArray(height * width * 4);
+
+//     PrepareBuffers();
+    
+//     // setTimeout(() => {
+//     //     ViewFrames();
+        
+//     // }, 100);
+// }
 
 
 var planeBuffer = [];
@@ -390,12 +570,12 @@ function checkCollide(x,y,z){
         var playerWidth = 200;
         var large = 1000000;
         var A = {
-            x: objData.x + large,
-            dx: objData.dx,
-            y: objData.y + large,
-            dy: objData.dy ,
-            z: objData.z + large,
-            dz: objData.dz 
+            x: objData.cx + large,
+            dx: objData.cdx,
+            y: objData.cy + large,
+            dy: objData.cdy ,
+            z: objData.cz + large,
+            dz: objData.cdz 
         };
         var B = {
             x: camera[0] + large - playerWidth / 2,
