@@ -1,6 +1,5 @@
-# 3D Raytracing in JS
-Raytracing in Javascript
+# Raytracing in Javascript
+# raytrace.js
 
-Example Of the Program Below
+An API for 3D Raytracing Games and Animation in Javascript.
 
-![Example Image](https://raw.githubusercontent.com/jeffreyAaron/3D-Raytracing-JS/master/3D%20Render%20Screenshot.png?token=AN3MV6DH2JHM3UGDG5US2ZC7BTW62)
