@@ -595,13 +595,13 @@ function checkCollide(x,y,z){
 }
 
 
-function ViewFrames(){
+function RenderFrames(){
     UpdatePlayerMovement();
     draw();
     
     let imageData = new ImageData(pixelData, width, height);
     ctx.putImageData(imageData, 0, 0);
-    requestAnimationFrame(ViewFrames);
+    requestAnimationFrame(RenderFrames);
     
 }
 function calcIntersection(x, y, z, equation, cameras){

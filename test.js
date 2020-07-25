@@ -72,6 +72,6 @@ window.onload = () => {
 
     load();
 
-    ViewFrames();
+    RenderFrames();
 
 }
