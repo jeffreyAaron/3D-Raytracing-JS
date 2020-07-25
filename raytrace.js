@@ -88,6 +88,7 @@ var box = [tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31, tri32, tri33,
 
 var roomData = {
     id: 0,
+    shadow:false,
     color: {
         r: 210,
         g: 210,
@@ -99,6 +100,7 @@ var roomData = {
 }
 var platformData = {
     id: 1,
+    shadow: true,
     color: {
         r: 66,
         g: 135,
@@ -118,6 +120,7 @@ var platformData = {
 
 var boxData = {
     id: 2,
+    shadow: true,
     color: {
         r: 255,
         g: 77,
@@ -134,10 +137,11 @@ var objectData = [roomData, platformData, boxData]
 
 
 
-var width = 900; //document.height is obsolete;
+var width = 900;
 var height = 600;
 var focalLength = 400;
 
+var fov = 1;
 let camera = [500, 400, 500];
 var rot = [0, 0, 0];
 var lightPoint = [200, 350, 200];
@@ -145,13 +149,11 @@ var lightPoint2 = [450, 250, -450];
 
 var lights = [lightPoint2, lightPoint];
 var pixelSize = 1;
+var antiA = 2;
 
 var pixelData = null;
 
-
-function round3(num) {
-    return Math.round(num * 10000000) / 10000000;
-}
+var transparencyEnabled = true;
 
 
 Array.prototype.min = function () {
@@ -162,7 +164,7 @@ function inverseMatrix(mat){
     var a =  mat[0][0], b =  mat[0][1], c =  mat[0][2], d =  mat[1][0], e =  mat[1][1], f =  mat[1][2], g =  mat[2][0], h =  mat[2][1], i =  mat[2][2];
 
     var v00 = e * i - f * h, v01 = c * h - b * i, v02 = b * f - c * e, v10 = f * g - d * i, v11 = a * i - c * g, v12 = c * d - a * f, v20 = d * h - e * g, v21 = b * g - a * h, v22 = a * e - b * d;
-    var det = round3(a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g));
+    var det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
     var matInv = [[v00/det, v01/det, v02/det], [v10/det, v11/det, v12/det], [v20/det, v21/det, v22/det]];
     return matInv;
 }
@@ -232,28 +234,31 @@ document.addEventListener('keydown', function (event) {
 });
 document.addEventListener('keyup', function (event) {
     switch (event.keyCode) {
-        case 65: // A
-            movement.left = false;
-            break;
         case 87: // W
             movement.up = false;
-            break;
-        case 68: // D
-            movement.right = false;
             break;
         case 83: // S
             movement.down = false;
             break;
-        case 38: // Up
-            movement.lookUp = false;
-            break;
-
-        case 40: // Down
-            movement.lookDown = false;
-            break;
         case 32: // SpaceBar
             movement.jump = true;
             break;
+        case 84: // T
+            transparencyEnabled = !transparencyEnabled;
+            break;
+        case 79: // O
+            pixelSize++;
+        break;
+        case 76: // L
+            pixelSize--;
+        break;
+
+        case 73: // I
+            antiA++;
+        break;
+        case 75: // K
+            antiA--;
+        break;
     }
 });
 
@@ -292,13 +297,13 @@ window.onload = () => {
     
     ctx = canvas.getContext("2d");
 
-    canvas.height = document.body.clientHeight;
-    canvas.width = document.body.clientWidth;
-    //canvas.height = 600;
-    //canvas.width = 900;
+    //canvas.height = document.body.clientHeight;
+    //canvas.width = document.body.clientWidth;
+    //canvas.height = 400;
+    //canvas.width = 600;
 
-    height = canvas.height;
-    width = canvas.width;
+    //height = canvas.height;
+    //awidth = canvas.width;
     
     pixelData = new Uint8ClampedArray(height * width * 4);
 
@@ -342,6 +347,7 @@ var totalRotY = 0.001;
 
 
 function UpdatePlayerMovement(){
+    //lights[0] = camera;
     var x = camera[0], y = camera[1], z = camera[2];
     
     
@@ -349,10 +355,11 @@ function UpdatePlayerMovement(){
         vely -= 3;
     }
     if (movement.down) {
-        velz -= 1;
+        velz -= 3;
     } else if (movement.up) {
-        velz += 1;
+        velz += 3;
     }
+    
     if (movement.jump) {
         if (camera[1] === 250){
             vely += 23;
@@ -464,7 +471,7 @@ function checkIfInsideTriangle(triangle, point){
 }
 
 function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject, near) {
-    var intersectionP = [round3(ints[0]), round3(ints[1]), round3(ints[2])]
+    var intersectionP = [ints[0], ints[1], ints[2]]
     var triangleToRender = Infinity;
     if (near) {
         triangleToRender = -Infinity;
@@ -557,12 +564,16 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
 }
 
 function traceToLight(ints, id, firstColor, lightPoint) {
-    var intersectionP = [round3(ints[0]), round3(ints[1]), round3(ints[2])]
+    var intersectionP = [ints[0], ints[1], ints[2]]
     var P = lightPoint;
     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
         var object = objects[objectIndex];
         var objectDat = objectData[objectIndex];
         if(objectDat.id === id){
+            continue;
+        }
+
+        if (!objectDat.shadow) {
             continue;
         }
         for (let tri = 0; tri < object.length; tri++) {
@@ -586,7 +597,7 @@ function traceToLight(ints, id, firstColor, lightPoint) {
 
             if (isInside) {
                 
-                if(objectDat.isTransparent){
+                if(objectDat.isTransparent && transparencyEnabled){
                     var FinalLight = (1 - objectDat.alpha);
                     if (objectDat.alpha === 1) {
                         FinalLight = 0.2;
@@ -607,237 +618,249 @@ function traceToLight(ints, id, firstColor, lightPoint) {
     return [firstColor[0], firstColor[1], firstColor[2], true];
 }
 
-var fov = 2;
 function draw(){
     var xlim = width / pixelSize;
     var ylim = height / pixelSize;
     for (let y = 0; y < ylim; y++) {
         for (let x = 0; x < xlim; x++) {
-            var triangleToRender = Infinity;
-            var lightToRender;
-            var isTriangle = false;
-            var Px = pixelSize * x * fov - camera[0] * 0.5;
-            var Py = pixelSize * y * fov - camera[1] * 0.5;
-            var Pz = camera[2] + focalLength;
-            var P = rotateX3D(totalRotX, [Px, Py, Pz]);
-            P = rotateY3D(totalRotY, P);
-            P = [P[0], P[1], P[2]]
-            
-            var triIndex = 0;
-                for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
-                    var object = objects[objectIndex];
-                    var objectDat = objectData[objectIndex];
-                    for (let tri = 0; tri < object.length; tri++) {
-                        
-                        var triangle = object[tri];
-                        var equation = planeBuffer[objectIndex][tri];
-                        var intersection = calcIntersection(P[0], P[1], P[2], equation, camera);
-                        if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
-                            continue;
-                        }
-                        
-                        var isInside = checkIfInsideTriangle(triangle, intersection);
-                        
-                       var normalToPlaneVector = normalBuffer[objectIndex][tri];
-                        if (isInside && intersection[3] > 0){
-                            if (triangleToRender > intersection[3]) {
-                                var rgb;
-                                var FinalRGB = [0, 0, 0]
-                                for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
-                                    var light = lights[lightIndex];
-                                    rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
-                                    if(rgb[3]){
-                                        PointLightIntensity = 1;
-                                    }
-                                    var Lightvector = normaliseVector(subtractVectors(light, intersection));
-                                    var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                                    if (objectDat.isTransparent){
-                                        
-                                        var rgb1 = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha, true, false);
-                                        var rgb2 = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha, false, false);
-                                        var rgb3 = traceToTransparency(camera, objectDat.id, P, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light, objectDat.alpha, true, true);
-                                        rgb = [(rgb1[0] + rgb2[0] + rgb3[0]) / 3, (rgb1[1] + rgb2[1] + rgb3[1]) / 3, (rgb1[2] + rgb2[2] + rgb3[2]) / 3]
-                                        PointLightIntensity = 1;
-                                    }
+            //var hiddenTriangles = [];
+            var AvglightToRender = [0,0,0];
+            for (let adapty = 0; adapty < antiA; adapty++) {
+                for (let adaptx = 0; adaptx < antiA; adaptx++) {
+                    var triangleToRender = Infinity;
+                    var lightToRender;
+                    var isTriangle = false;
+                    var Px = pixelSize * (x +  adaptx / antiA) * fov - camera[0] * 0.5;
+                    var Py = pixelSize * (y +  adapty / antiA) * fov - camera[1] * 0.5;
+                    var Pz = camera[2] + focalLength;
+                    var P = rotateX3D(totalRotX, [Px, Py, Pz]);
+                    P = rotateY3D(totalRotY, P);
+                    P = [P[0], P[1], P[2]]
+                        for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+                            var object = objects[objectIndex];
+                            var objectDat = objectData[objectIndex];
+                            for (let tri = 0; tri < object.length; tri++) {
+                                
+                                var triangle = object[tri];
+                                var equation = planeBuffer[objectIndex][tri];
+                                var intersection = calcIntersection(P[0], P[1], P[2], equation, camera);
+                                if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
+                                    continue;
+                                }
+                                
+                                var isInside = checkIfInsideTriangle(triangle, intersection);
+                                
+                            var normalToPlaneVector = normalBuffer[objectIndex][tri];
 
-                                    
-                                    
-                                    FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]
-                                    
-                                    
-                                } 
-                                lightToRender = [Math.ceil(FinalRGB[0]) / lights.length, Math.ceil(FinalRGB[1]) / lights.length, Math.ceil(FinalRGB[2]) / lights.length];
-                                triangleToRender = intersection[3];
-                                isTriangle = true;
+                                if (isInside && intersection[3] > 0){
+                                    if (triangleToRender > intersection[3]) {
+                                        var rgb;
+                                        var FinalRGB = [0, 0, 0]
+                                        for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
+                                            var light = lights[lightIndex];
+                                            var objectColor = [objectDat.color.r, objectDat.color.g, objectDat.color.b];
+                        
+                                            rgb = traceToLight(intersection, objectDat.id, objectColor, light);
+                                            if(rgb[3]){
+                                                PointLightIntensity = 1;
+                                            }
+                                            var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                                            var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                                            if (objectDat.isTransparent && transparencyEnabled){
+                                                
+                                                var rgb1 = traceToTransparency(camera, objectDat.id, P, objectColor, light, objectDat.alpha, true, false);
+                                                var rgb2 = traceToTransparency(camera, objectDat.id, P, objectColor, light, objectDat.alpha, false, false);
+                                                var rgb3 = traceToTransparency(camera, objectDat.id, P, objectColor, light, objectDat.alpha, true, true);
+                                                rgb = [(rgb1[0] + rgb2[0] + rgb3[0]) / 3, (rgb1[1] + rgb2[1] + rgb3[1]) / 3, (rgb1[2] + rgb2[2] + rgb3[2]) / 3]
+                                                PointLightIntensity = 1;
+                                            }
+        
+                                            
+                                            
+                                            FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]
+                                            
+                                            
+                                        } 
+                                        lightToRender = [Math.ceil(FinalRGB[0]) / lights.length, Math.ceil(FinalRGB[1]) / lights.length, Math.ceil(FinalRGB[2]) / lights.length];
+                                        triangleToRender = intersection[3];
+                                        isTriangle = true;
+                                    }
+                                }
+                
                             }
                         }
-                        triIndex++;
+
+                    if(isTriangle){
+                        AvglightToRender = [AvglightToRender[0] + lightToRender[0], AvglightToRender[1] + lightToRender[1], AvglightToRender[2] + lightToRender[2]]
                     }
                 }
-                    if (isTriangle){
-                        
-                        var r = lightToRender[0];
-                        var g = lightToRender[1];
-                        var b = lightToRender[2];
+            }
 
-                        var yTemp = y * pixelSize;
-                        var xTemp = x * pixelSize;
+            if (isTriangle) {
 
-                        var index = 0;
+                var r = AvglightToRender[0] / (antiA * antiA);
+                var g = AvglightToRender[1] / (antiA * antiA);
+                var b = AvglightToRender[2] / (antiA * antiA);
 
-                        for (let y1 = 0; y1 < pixelSize; y1++) {
-                            for (let x1 = 0; x1 < pixelSize; x1++) {
-                                var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                var yTemp = y * pixelSize;
+                var xTemp = x * pixelSize;
 
-                                pixelData[index + 0] = r;
-                                pixelData[index + 1] = g;
-                                pixelData[index + 2] = b;
-                                pixelData[index + 3] = 255;
+                var index = 0;
 
-                            }
+                for (let y1 = 0; y1 < pixelSize; y1++) {
+                    for (let x1 = 0; x1 < pixelSize; x1++) {
+                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
-                        }
-                        // //
-                        // index = (yTemp* width + xTemp) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
+                        pixelData[index + 0] = r;
+                        pixelData[index + 1] = g;
+                        pixelData[index + 2] = b;
+                        pixelData[index + 3] = 255;
 
-                        // index = (yTemp * width + (xTemp + 1)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = (yTemp * width + (xTemp + 2)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // //
-                        // index = ((yTemp + 1) * width + xTemp ) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 2) * width + xTemp) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        
-                    }else{
-
-                        var r = 255;
-                        var g = 255;
-                        var b = 255;
-
-                        var yTemp = y * pixelSize;
-                        var xTemp = x * pixelSize;
-
-                        var index = 0;
-
-                        // //
-                        // index = (yTemp * width + xTemp) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = (yTemp * width + (xTemp + 1)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = (yTemp * width + (xTemp + 2)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // //
-                        // index = ((yTemp + 1) * width + xTemp) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 2) * width + xTemp) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
-                        // pixelData[index + 0] = r;
-                        // pixelData[index + 1] = g;
-                        // pixelData[index + 2] = b;
-                        // pixelData[index + 3] = 255;
-
-                        for (let y1 = 0; y1 < pixelSize; y1++) {
-                            for (let x1 = 0; x1 < pixelSize; x1++) {
-                                var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
-
-                                pixelData[index + 0] = 255;
-                                pixelData[index + 1] = 255;
-                                pixelData[index + 2] = 255;
-                                pixelData[index + 3] = 255;
-
-                            }
-
-                        }
                     }
-            
 
-        
-    }
+                }
+                // //
+                // index = (yTemp* width + xTemp) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = (yTemp * width + (xTemp + 1)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = (yTemp * width + (xTemp + 2)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // //
+                // index = ((yTemp + 1) * width + xTemp ) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 2) * width + xTemp) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+
+            } else {
+
+                var r = 255;
+                var g = 255;
+                var b = 255;
+
+                var yTemp = y * pixelSize;
+                var xTemp = x * pixelSize;
+
+                var index = 0;
+
+                // //
+                // index = (yTemp * width + xTemp) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = (yTemp * width + (xTemp + 1)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = (yTemp * width + (xTemp + 2)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // //
+                // index = ((yTemp + 1) * width + xTemp) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 2) * width + xTemp) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
+                // pixelData[index + 0] = r;
+                // pixelData[index + 1] = g;
+                // pixelData[index + 2] = b;
+                // pixelData[index + 3] = 255;
+
+                for (let y1 = 0; y1 < pixelSize; y1++) {
+                    for (let x1 = 0; x1 < pixelSize; x1++) {
+                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+
+                        pixelData[index + 0] = 255;
+                        pixelData[index + 1] = 255;
+                        pixelData[index + 2] = 255;
+                        pixelData[index + 3] = 255;
+
+                    }
+
+                }
+            }
+
+
+
+            
+        }           
     }
 }
 
