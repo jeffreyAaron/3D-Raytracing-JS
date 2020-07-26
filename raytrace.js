@@ -151,7 +151,7 @@ var lightPoint2 = [450, 250, -450];
 
 var lights = [lightPoint2, lightPoint];
 
-//var lights = [];
+
 var pixelSize = 3;
 var antiA = 1;
 
@@ -161,7 +161,7 @@ var transparencyEnabled = true;
 
 var triIndex = 0;
 
-function setUpWorldVars(Nwidth, Nheight, NfocalLength, Nfov){
+function setUpComputerVars(Nwidth, Nheight, NfocalLength, Nfov){
     canvas.height = Nheight;
     canvas.width = Nwidth;
     focalLength = NfocalLength;
@@ -177,12 +177,6 @@ function addCuboid(id, x, y, z, dx, dy, dz, transparent, alpha, shadow, collide,
                 g: g,
                 b: b
             },
-            x: x,
-            dx: dx,
-            y: y, 
-            dy: dy,
-            z: z,
-            dz: dz,
             isTransparent: transparent,
             alpha: alpha,
             collide: collide,
@@ -243,6 +237,93 @@ function addCuboid(id, x, y, z, dx, dy, dz, transparent, alpha, shadow, collide,
 
 }
 
+function addIco(data, scale){
+    var id = data.id;
+    var shadow = data.shadow;
+    var r = data.color.r, g = data.color.g, b = data.color.b;
+    var x = data.x, dx = data.dx, y = data.y, dy = data.dy, z = data.z, dz = data.dz;
+    var boxData = {
+        id: id,
+        shadow: shadow,
+        color: {
+            r: r,
+            g: g,
+            b: b
+        },
+        rotate: data.rotate,
+        rx: data.rx,
+        ry: data.ry,
+        rz: data.rz,
+        isTransparent: data.isTransparent,
+        alpha: data.alpha,
+        collide: data.collide,
+        cx: data.cx,
+        cdx: data.cdx,
+        cy: data.cy,
+        cdy: data.cdy,
+        cz: data.cz,
+        cdz: data.cdz,
+    };
+
+    var node0 = [0 * scale + x, -0.525731 * scale + y, 0.850651 * scale + z];
+    var node1 = [0.850651 * scale + x, 0 * scale + y, 0.525731 * scale + z];
+    var node2 = [0.850651 * scale + x, 0 * scale + y, - 0.525731 * scale + z];
+    var node3 = [-0.850651 * scale + x, 0 * scale + y, - 0.525731 * scale + z];
+    var node4 = [-0.850651 * scale + x, 0 * scale + y, 0.525731 * scale + z];
+    var node5 = [-0.525731 * scale + x, 0.850651 * scale + y        , 0 * scale + z];
+    var node6 = [0.525731 * scale + x, 0.850651 * scale + y   , 0 * scale + z];
+    var node7 = [0.525731 * scale + x, - 0.850651 * scale + y    , 0 * scale + z];
+    var node8 = [-0.525731 * scale + x, - 0.850651 * scale + y  , 0 * scale + z];
+    var node9 = [0 * scale + x, -0.525731 * scale + y, - 0.850651 * scale + z];
+    var node10 = [0 * scale + x, 0.525731 * scale + y, - 0.850651 * scale + z];
+    var node11 = [0 * scale + x, 0.525731 * scale + y,  0.850651 * scale + z];
+
+    nodes.push(node0);
+    nodes.push(node1);
+    nodes.push(node2);
+    nodes.push(node3);
+    nodes.push(node4);
+    nodes.push(node5);
+    nodes.push(node6);
+    nodes.push(node7);
+    nodes.push(node8);
+    nodes.push(node9);
+    nodes.push(node10);
+    nodes.push(node11);
+
+    var tri12 = [2 + triIndex - 1, 3 + triIndex - 1, 7 + triIndex - 1];
+    var tri13 = [2 + triIndex - 1, 8 + triIndex - 1, 3 + triIndex - 1];
+    var tri14 = [4 + triIndex - 1, 5 + triIndex - 1, 6 + triIndex - 1];
+    var tri15 = [5 + triIndex - 1, 4 + triIndex - 1, 9 + triIndex - 1];
+    var tri16 = [7 + triIndex - 1, 6 + triIndex - 1, 12 + triIndex - 1];
+    var tri17 = [6 + triIndex - 1, 7 + triIndex - 1, 11 + triIndex - 1];
+    var tri18 = [10 + triIndex - 1, 11 + triIndex - 1, 3 + triIndex - 1];
+    var tri19 = [11 + triIndex - 1, 10 + triIndex - 1, 4 + triIndex - 1];
+    var tri20 = [8 + triIndex - 1, 9 + triIndex - 1, 10 + triIndex - 1];
+    var tri21 = [9 + triIndex - 1, 8 + triIndex - 1, 1 + triIndex - 1];
+    var tri22 = [12 + triIndex - 1, 1 + triIndex - 1, 2 + triIndex - 1];
+    var tri23 = [1 + triIndex - 1, 12 + triIndex - 1, 5 + triIndex - 1];
+    var tri24 = [7 + triIndex - 1, 3 + triIndex - 1, 11 + triIndex - 1];
+    var tri25 = [2 + triIndex - 1, 7 + triIndex - 1, 12 + triIndex - 1];
+    var tri26 = [4 + triIndex - 1, 6 + triIndex - 1, 11 + triIndex - 1];
+    var tri27 = [6 + triIndex - 1, 5 + triIndex - 1, 12 + triIndex - 1];
+    var tri28 = [3 + triIndex - 1, 8 + triIndex - 1, 10 + triIndex - 1];
+    var tri29 = [8 + triIndex - 1, 2 + triIndex - 1, 1 + triIndex - 1];
+    var tri30 = [4 + triIndex - 1, 10 + triIndex - 1, 9 + triIndex - 1];
+    var tri31 = [5 + triIndex - 1, 9 + triIndex - 1, 1 + triIndex - 1];
+
+    triIndex += 20;
+
+    var box = [tri12, tri13, tri14, tri15, tri16, tri17, tri18, tri19, tri20, tri21, tri22, tri23, tri24, tri25, tri26, tri27, tri28, tri29, tri30, tri31];
+
+    objects.push(box);
+    objectData.push(boxData);
+    
+
+
+
+}
+
 function addCuboidL(data, reverse) {
     var id = data.id;
     var shadow = data.shadow;
@@ -256,12 +337,10 @@ function addCuboidL(data, reverse) {
             g: g,
             b: b
         },
-        x: x,
-        dx: dx,
-        y: y,
-        dy: dy,
-        z: z,
-        dz: dz,
+        rotate: data.rotate,
+        rx: data.rx,
+        ry: data.ry,
+        rz: data.rz,
         isTransparent: data.isTransparent,
         alpha: data.alpha,
         collide: data.collide,
@@ -463,6 +542,12 @@ document.onmousemove = function (event) {
 }
 };
 
+document.onwheel = (event) => {
+    //event.preventDefault();
+    focalLength += event.deltaY * -0.5;
+    focalLength = Math.min(Math.max(2, focalLength), 1000);
+};
+
 var ctx;
 function load(){
     var canvas = document.getElementById("canvas");
@@ -597,6 +682,7 @@ function checkCollide(x,y,z){
 
 function RenderFrames(){
     UpdatePlayerMovement();
+
     draw();
     
     let imageData = new ImageData(pixelData, width, height);

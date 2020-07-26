@@ -1,3 +1,4 @@
+
 var roomData = {
     id: 0,
     shadow: false,
@@ -6,6 +7,7 @@ var roomData = {
         g: 210,
         b: 210
     },
+    rotate: true,
     alpha: 1,
     isTransparent: false,
     collide: false,
@@ -24,6 +26,7 @@ var platformData = {
         g: 135,
         b: 245
     },
+    rotate: true,
     isTransparent: true,
     alpha: 0.2,
     collide: true,
@@ -51,6 +54,7 @@ var boxData = {
         g: 77,
         b: 77
     },
+    rotate: true,
     isTransparent: false,
     alpha: 1,
     collide: false,
@@ -63,13 +67,37 @@ var boxData = {
 
 }
 
+var icoData = {
+    id: 2,
+    shadow: true,
+    color: {
+        r: 255,
+        g: 77,
+        b: 77
+    },
+    isTransparent: true,
+    alpha: 0.3,
+    rotate:true,
+    rx: 0,
+    ry: 0.01,
+    rz: 0,
+    collide: false,
+    x: 500,
+    dx: 100,
+    y: 400,
+    dy: 500,
+    z: 700,
+    dz: 100
+
+}
+
 window.onload = () => {
-    setUpWorldVars(900, 600, 400, 1);
+    setUpComputerVars(900, 600, 400, 1);
 
     addCuboidL(roomData, false);
-    addCuboidL(platformData, false);
-    addCuboidL(boxData, true);
-
+    //addCuboidL(platformData, false);
+    //addCuboidL(boxData, true);
+    addIco(icoData, 200)
     load();
 
     RenderFrames();
