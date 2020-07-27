@@ -160,6 +160,7 @@ var antiA = 1;
 var pixelData = null;
 
 var transparencyEnabled = true;
+var specularEnabled = true;
 
 var triIndex = 0;
 
@@ -995,7 +996,7 @@ function draw(){
                                         
                                         var normals = objectNormals[objectDat.id];
                                         if (typeof normals !== 'undefined'){
-                                            console.log(intersection[1]);
+                                            //console.log(intersection[1]);
                                             normalToPlaneVector = interpolateNormals(isInside[1], normals[triangle[0] - normals[0] + 1], normals[triangle[1] - normals[0] + 1], normals[triangle[2] - normals[0] + 1])
                                         }
                                         var rgb;
@@ -1018,7 +1019,19 @@ function draw(){
                                                 rgb = [(rgb1[0] + rgb2[0] + rgb3[0]) / 3, (rgb1[1] + rgb2[1] + rgb3[1]) / 3, (rgb1[2] + rgb2[2] + rgb3[2]) / 3]
                                                 PointLightIntensity = 1;
                                             }
-        
+                                            
+                                            if (specularEnabled) {
+                                                var specularConstant = 50;
+                                                var Normal = normalToPlaneVector;
+                                                var View = normaliseVector(subtractVectors(intersection, camera));
+                                                var Light = normaliseVector(subtractVectors(light, intersection));
+                                                var dotNL = dotProduct(Normal, Light);
+                                                var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
+                                                var Reflection = normaliseVector(subtractVectors(ReflectionT, Light));
+                                                var Specular = Math.min(1, Math.pow(dotProduct(View, Reflection), specularConstant));
+                                                //console.log(Specular);
+                                                rgb = [0.5 * (rgb[0] + 255 * Specular), 0.5 * (rgb[1] + 255 * Specular), 0.5 * (rgb[2] + 255 * Specular)]
+                                            }
                                             
                                             
                                             FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]
