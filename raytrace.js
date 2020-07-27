@@ -138,6 +138,8 @@ var nodes = [];
 var objects = [];
 var objectData = [];
 
+var objectNormals = [];
+
 
 
 var width = 900;
@@ -152,7 +154,7 @@ var lightPoint2 = [450, 250, -450];
 var lights = [lightPoint2, lightPoint];
 
 
-var pixelSize = 3;
+var pixelSize = 10;
 var antiA = 1;
 
 var pixelData = null;
@@ -234,6 +236,65 @@ function addCuboid(id, x, y, z, dx, dy, dz, transparent, alpha, shadow, collide,
 
     objects.push(box);
     objectData.push(boxData);
+
+}
+
+function loadObj(verts, faces, vnorm ,data, scale){
+
+var id = data.id;
+var shadow = data.shadow;
+var r = data.color.r, g = data.color.g, b = data.color.b;
+var x = data.x, dx = data.dx, y = data.y, dy = data.dy, z = data.z, dz = data.dz;
+var boxData = {
+    id: id,
+    shadow: shadow,
+    color: {
+        r: r,
+        g: g,
+        b: b
+    },
+    rotate: data.rotate,
+    rx: data.rx,
+    ry: data.ry,
+    rz: data.rz,
+    isTransparent: data.isTransparent,
+    alpha: data.alpha,
+    collide: data.collide,
+    cx: data.cx,
+    cdx: data.cdx,
+    cy: data.cy,
+    cdy: data.cdy,
+    cz: data.cz,
+    cdz: data.cdz,
+};
+
+var verticies = verts.split(',');
+var faces = faces.split(',');
+var norm = vnorm.split(',');
+//console.log(faces);
+var box = [];
+objectNormals[id] = [triIndex];
+for (let fc = 0; fc < faces.length; fc += 4) {
+    box.push([Number(faces[fc + 1].trim()) - 1 + triIndex, Number(faces[fc + 3].trim()) - 1 + triIndex, Number(faces[fc + 2].trim()) - 1 + triIndex]);
+
+}
+for (let vert = 0; vert < verticies.length; vert+=4) {
+    //console.log(verticies);
+    nodes.push([Number(verticies[vert + 1].trim()) * scale + x, -Number(verticies[vert + 2].trim()) * scale + y, -Number(verticies[vert + 3].trim()) * scale + z])
+    triIndex += 1;
+    
+}
+for (let vn = 0; vn < norm.length; vn += 4) {
+    objectNormals[id].push([Number(norm[vn + 1].trim()), Number(norm[vn + 2].trim()), Number(norm[vn + 3].trim())])
+}
+
+objects.push(box);
+objectData.push(boxData);
+
+
+
+
+
 
 }
 
@@ -543,7 +604,6 @@ document.onmousemove = function (event) {
 };
 
 document.onwheel = (event) => {
-    //event.preventDefault();
     focalLength += event.deltaY * -0.5;
     focalLength = Math.min(Math.max(2, focalLength), 1000);
 };
@@ -733,7 +793,7 @@ function checkIfInsideTriangle(triangle, point){
     if (matAns[0] < 0 || matAns[1] < 0 || matAns[2] < 0){
         return false;
     }
-    return true;
+    return [true, matAns];
 }
 
 function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject, near) {
@@ -769,7 +829,7 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
             var isInside = checkIfInsideTriangle(triangle, intersection);
             if (near) {
             if (triangleToRender < intersection[3]) {
-                    if (isInside) {
+                    if (isInside[0]) {
                         //console.log(objectDat.id)
                         rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
                         var Lightvector = normaliseVector(subtractVectors(light, intersection));
@@ -859,7 +919,7 @@ function traceToLight(intersectionP, id, firstColor, lightPoint) {
 
             var isInside = checkIfInsideTriangle(triangle, intersection);
 
-            if (isInside) {
+            if (isInside[0]) {
                 
                 if(objectDat.isTransparent && transparencyEnabled){
                     var FinalLight = (1 - objectDat.alpha);
@@ -882,7 +942,19 @@ function traceToLight(intersectionP, id, firstColor, lightPoint) {
     return [firstColor[0], firstColor[1], firstColor[2], true];
 }
 
+function interpolateNormals(avg, n1, n2, n3){
+    //console.log(n1);
+    //var avg = normaliseVector(avg);
+    //console.log(avg);
 
+    var x = avg[0] * n1[0] + avg[1] * n2[0] + avg[2] * n3[0];
+    var y = avg[0] * n1[1] + avg[1] * n2[1] + avg[2] * n3[1];
+    var z = avg[0] * n1[2] + avg[1] * n2[2] + avg[2] * n3[2];
+
+    return [-x, -y, -z];
+
+
+}
 
 function draw(){
     var xlim = width / pixelSize;
@@ -917,9 +989,15 @@ function draw(){
                                 var isInside = checkIfInsideTriangle(triangle, intersection);
                                 
                                 
-                                if (isInside && intersection[3] > 0){
+                                if (isInside[0] && intersection[3] > 0){
                                     if (triangleToRender > intersection[3]) {
                                         var normalToPlaneVector = normalBuffer[objectIndex][tri];
+                                        
+                                        var normals = objectNormals[objectDat.id];
+                                        if (typeof normals !== 'undefined'){
+                                            console.log(intersection[1]);
+                                            normalToPlaneVector = interpolateNormals(isInside[1], normals[triangle[0] - normals[0] + 1], normals[triangle[1] - normals[0] + 1], normals[triangle[2] - normals[0] + 1])
+                                        }
                                         var rgb;
                                         var FinalRGB = [0, 0, 0]
                                         for (let lightIndex = 0; lightIndex < lights.length; lightIndex++) {
