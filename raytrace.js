@@ -890,6 +890,62 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
     
 }
 
+function traceToReflection(ints, id, lightPoint, color, light, alpha) {
+    var intersectionP = [ints[0], ints[1], ints[2]]
+    var triangleToRender = -Infinity;
+    
+    var lightToRender;
+    var lightNearToRender;
+    var lightObjectToRender;
+    var isTriangle = false;
+    for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+        var object = objects[objectIndex];
+        var objectDat = objectData[objectIndex];
+        
+        if (objectDat.id === id) {
+            continue;
+        }
+        
+
+        for (let tri = 0; tri < object.length; tri++) {
+            var triangle = object[tri];
+            var equation = planeBuffer[objectIndex][tri];
+            var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], equation, lightPoint);
+            if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
+                continue;
+            }
+            var isInside = checkIfInsideTriangle(triangle, intersection);
+            
+                if (triangleToRender < intersection[3]) {
+                    if (isInside[0] && intersection[3] > 0) {
+                        //console.log(objectDat.id)
+                        rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
+                        var Lightvector = normaliseVector(subtractVectors(light, intersection));
+                        var normalToPlaneVector = normalBuffer[objectIndex][tri];
+                        var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                        
+                        //PointLightIntensity = 1;
+                        // Possible Figure
+
+                        lightToRender = [(2.5 * color[0] + rgb[0] * PointLightIntensity) / 3.5, (2.5 * color[1] + rgb[1] * PointLightIntensity) / 3.5, (2.5 *color[2] +rgb[2] * PointLightIntensity) / 3.5];
+                        triangleToRender = intersection[3];
+                        isTriangle = true;
+
+                    }
+                }
+
+        }
+    }
+
+    if (isTriangle) {
+        return lightToRender;
+    } else {
+        return [255, 255, 255]
+    }
+
+
+}
+
 function traceToLight(intersectionP, id, firstColor, lightPoint) {
     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
         var object = objects[objectIndex];
@@ -1020,8 +1076,21 @@ function draw(){
                                                 PointLightIntensity = 1;
                                             }
                                             
-                                            if (specularEnabled) {
-                                                var specularConstant = 50;
+                                            // if (objectDat.id === 2) {
+                                            //     var Normal = normalToPlaneVector;
+                                            //     var View = normaliseVector(subtractVectors(intersection, camera));
+                                            //     var Light = normaliseVector(subtractVectors(intersection, light));
+                                            //     var dotNL = dotProduct(Normal, Light);
+                                            //     var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
+                                            //     var Reflection = normaliseVector(subtractVectors(ReflectionT, Light));
+                                            //     var ReflectionCam = [camera[0] + Reflection[0], camera[1] + Reflection[1], camera[2] + Reflection[2]];
+                                            //     var rgb1 = traceToReflection(camera, objectDat.id, ReflectionCam, objectColor, light, 0.7);
+                                            //     rgb = rgb1;
+                                                
+                                            // }
+                                            
+                                            if (specularEnabled && objectDat.shadow) {
+                                                var specularConstant = 250;
                                                 var Normal = normalToPlaneVector;
                                                 var View = normaliseVector(subtractVectors(intersection, camera));
                                                 var Light = normaliseVector(subtractVectors(light, intersection));
@@ -1030,8 +1099,9 @@ function draw(){
                                                 var Reflection = normaliseVector(subtractVectors(ReflectionT, Light));
                                                 var Specular = Math.min(1, Math.pow(dotProduct(View, Reflection), specularConstant));
                                                 //console.log(Specular);
-                                                rgb = [0.5 * (rgb[0] + 255 * Specular), 0.5 * (rgb[1] + 255 * Specular), 0.5 * (rgb[2] + 255 * Specular)]
+                                                rgb = [(rgb[0] + 255 * Specular), (rgb[1] + 255 * Specular), (rgb[2] + 255 * Specular)]
                                             }
+
                                             
                                             
                                             FinalRGB = [FinalRGB[0] + rgb[0] * PointLightIntensity, FinalRGB[1] + rgb[1] * PointLightIntensity, FinalRGB[2] + rgb[2] * PointLightIntensity]

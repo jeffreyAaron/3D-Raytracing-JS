@@ -27,8 +27,8 @@ var platformData = {
         b: 245
     },
     rotate: true,
-    isTransparent: true,
-    alpha: 0.2,
+    isTransparent: false,
+    alpha: 1,
     collide: true,
     x: 10,
     dx: -510,
@@ -47,22 +47,22 @@ var platformData = {
 }
 
 var boxData = {
-    id: 2,
+    id: 3,
     shadow: true,
     color: {
-        r: 255,
-        g: 77,
-        b: 77
+        r: 66,
+        g: 135,
+        b: 245
     },
     rotate: true,
     isTransparent: false,
     alpha: 1,
     collide: false,
-    x: -900,
+    x: 500,
     dx: 100,
     y: 50,
     dy: 500,
-    z: -900,
+    z: 400,
     dz: 100
 
 }
@@ -95,7 +95,7 @@ var icoData = {
 window.onload = () => {
     setUpComputerVars(900, 600, 400, 1);
 
-    addCuboidL(roomData, false);
+    //addCuboidL(roomData, false);
     //addCuboidL(platformData, false);
     //addCuboidL(boxData, true);
     //addIco(icoData, 200);
