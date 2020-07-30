@@ -892,7 +892,7 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
 
 function traceToReflection(ints, id, lightPoint, color, light, alpha) {
     var intersectionP = [ints[0], ints[1], ints[2]]
-    var triangleToRender = -Infinity;
+    var triangleToRender = Infinity;
     
     var lightToRender;
     var lightNearToRender;
@@ -916,17 +916,17 @@ function traceToReflection(ints, id, lightPoint, color, light, alpha) {
             }
             var isInside = checkIfInsideTriangle(triangle, intersection);
             
-                if (triangleToRender < intersection[3]) {
+                if (triangleToRender > intersection[3]) {
                     if (isInside[0] && intersection[3] > 0) {
                         //console.log(objectDat.id)
                         rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
                         var Lightvector = normaliseVector(subtractVectors(light, intersection));
                         var normalToPlaneVector = normalBuffer[objectIndex][tri];
+                        var normals = objectNormals[objectDat.id];
+                        if (typeof normals !== 'undefined') {
+                            normalToPlaneVector = interpolateNormals(isInside[1], normals[triangle[0] - normals[0] + 1], normals[triangle[1] - normals[0] + 1], normals[triangle[2] - normals[0] + 1])
+                        }
                         var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                        
-                        //PointLightIntensity = 1;
-                        // Possible Figure
-
                         lightToRender = [(2.5 * color[0] + rgb[0] * PointLightIntensity) / 3.5, (2.5 * color[1] + rgb[1] * PointLightIntensity) / 3.5, (2.5 *color[2] +rgb[2] * PointLightIntensity) / 3.5];
                         triangleToRender = intersection[3];
                         isTriangle = true;
@@ -940,7 +940,7 @@ function traceToReflection(ints, id, lightPoint, color, light, alpha) {
     if (isTriangle) {
         return lightToRender;
     } else {
-        return [255, 255, 255]
+        return [255, 255, 255];
     }
 
 
@@ -1076,13 +1076,13 @@ function draw(){
                                                 PointLightIntensity = 1;
                                             }
                                             
-                                            // if (objectDat.id === 2) {
+                                            // if (true) {
                                             //     var Normal = normalToPlaneVector;
                                             //     var View = normaliseVector(subtractVectors(intersection, camera));
                                             //     var Light = normaliseVector(subtractVectors(intersection, light));
-                                            //     var dotNL = dotProduct(Normal, Light);
+                                            //     var dotNL = dotProduct(Normal, View);
                                             //     var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
-                                            //     var Reflection = normaliseVector(subtractVectors(ReflectionT, Light));
+                                            //     var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
                                             //     var ReflectionCam = [camera[0] + Reflection[0], camera[1] + Reflection[1], camera[2] + Reflection[2]];
                                             //     var rgb1 = traceToReflection(camera, objectDat.id, ReflectionCam, objectColor, light, 0.7);
                                             //     rgb = rgb1;

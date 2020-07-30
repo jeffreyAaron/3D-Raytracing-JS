@@ -95,7 +95,7 @@ var icoData = {
 window.onload = () => {
     setUpComputerVars(900, 600, 400, 1);
 
-    //addCuboidL(roomData, false);
+    addCuboidL(roomData, false);
     //addCuboidL(platformData, false);
     //addCuboidL(boxData, true);
     //addIco(icoData, 200);
