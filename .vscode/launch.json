@@ -10,6 +10,5 @@
         "type": "pwa-msedge",
         "url": "file:///C:/Users/Jeffrey/Documents/Coding/Node JS/3D Rendering/index.html",
         "webRoot": "${workspaceFolder}"
-    }
-    ]
+    }]
 }
