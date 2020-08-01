@@ -890,7 +890,7 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
     
 }
 
-function traceToReflection(ints, id, lightPoint, color, light, alpha) {
+function traceToReflection(ints, id, lightPoint, color, light, alpha, depth) {
     var intersectionP = [ints[0], ints[1], ints[2]]
     var triangleToRender = Infinity;
     
@@ -927,8 +927,9 @@ function traceToReflection(ints, id, lightPoint, color, light, alpha) {
                             normalToPlaneVector = interpolateNormals(isInside[1], normals[triangle[0] - normals[0] + 1], normals[triangle[1] - normals[0] + 1], normals[triangle[2] - normals[0] + 1])
                         }
                         var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                        lightToRender = [(2.5 * color[0] + rgb[0] * PointLightIntensity) / 3.5, (2.5 * color[1] + rgb[1] * PointLightIntensity) / 3.5, (2.5 *color[2] +rgb[2] * PointLightIntensity) / 3.5];
+                        lightToRender = [(1 * color[0] + rgb[0] * PointLightIntensity) / 2, (1 * color[1] + rgb[1] * PointLightIntensity) / 2, (1 * color[2] + rgb[2] * PointLightIntensity) / 2, true, intersection, normalToPlaneVector];
                         triangleToRender = intersection[3];
+                        //lightToRender = [rgb[0] * PointLightIntensity, rgb[1] * PointLightIntensity, rgb[2] * PointLightIntensity ]
                         isTriangle = true;
 
                     }
@@ -940,7 +941,7 @@ function traceToReflection(ints, id, lightPoint, color, light, alpha) {
     if (isTriangle) {
         return lightToRender;
     } else {
-        return [255, 255, 255];
+        return [255, 255, 255, false];
     }
 
 
@@ -1076,17 +1077,78 @@ function draw(){
                                                 PointLightIntensity = 1;
                                             }
                                             
-                                            // if (true) {
-                                            //     var Normal = normalToPlaneVector;
-                                            //     var View = normaliseVector(subtractVectors(intersection, camera));
-                                            //     var Light = normaliseVector(subtractVectors(intersection, light));
-                                            //     var dotNL = dotProduct(Normal, View);
-                                            //     var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
-                                            //     var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
-                                            //     var ReflectionCam = [camera[0] + Reflection[0], camera[1] + Reflection[1], camera[2] + Reflection[2]];
-                                            //     var rgb1 = traceToReflection(camera, objectDat.id, ReflectionCam, objectColor, light, 0.7);
-                                            //     rgb = rgb1;
+                                            if (true) {
+                                                var temprgb = rgb;
+                                                var normalPlaneTemp = normalToPlaneVector;
+                                                var intersectionTemp = intersection;
+                                                var dividened = 1;
+                                                for (let i = 0; i < 6; i++) {
+                                                    dividened++;
+                                                    var Normal = normalPlaneTemp;
+                                                    var View = normaliseVector(subtractVectors(intersectionTemp, camera));
+                                                    var Light = normaliseVector(subtractVectors(intersectionTemp, light));
+                                                    var dotNL = dotProduct(Normal, View);
+                                                    var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
+                                                    var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
+                                                    var ReflectionCam = [intersectionTemp[0] + Reflection[0], intersectionTemp[1] + Reflection[1], intersectionTemp[2] + Reflection[2]];
+                                                    var rgb1 = traceToReflection(intersectionTemp, objectDat.id, ReflectionCam, objectColor, light, 0.7, 0);
+                                                    var intersectionTemp = rgb1[4];
+                                                    temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
+                                                    normalPlaneTemp = traceToReflection;
+                                                    if(!rgb1[3]){
+                                                        break;
+                                                    }
+                                                    
+                                                }
+
+                                                rgb = [temprgb[0] / dividened, temprgb[1] / dividened, temprgb[2] / dividened];
                                                 
+                                            }
+
+
+                                            // if (objectDat.id === 2) {
+                                            //     var temprgb = rgb;
+                                            //     var normalPlaneTemp = normalToPlaneVector;
+                                            //     var intersectionTemp = intersection;
+                                            //     var dividened = 1;
+                                            //     for (let i = 0; i < 3; i++) {
+                                            //         dividened++;
+                                            //         var Normal = normalPlaneTemp;
+                                            //         var View = normaliseVector(subtractVectors(intersectionTemp, camera));
+                                            //         var NDotV = dotProduct(Normal, View);
+                                            //         var etai = 1;
+                                            //         var etat = 1.5;
+                                            //         if (NDotV < 0){
+                                            //             NDotV = -NDotV;
+                                            //         }else{
+                                            //             Normal = [-Normal[0], -Normal[1], -Normal[2]];
+                                            //             etai = etat;
+                                            //             etat = 1;
+                                            //         }
+
+                                            //         var eta = etai / etat;
+                                            //         var k = 1 - eta * eta * (1 - NDotV * NDotV);
+                                            //         // if(k<0){
+                                            //         //     //break;
+                                            //         // }else{
+                                            //             var temp1 = (eta * NDotV - Math.sqrt(k)) * Normal[0];
+                                            //             var temp2 = (eta * NDotV - Math.sqrt(k)) * Normal[1];
+                                            //             var temp3 = (eta * NDotV - Math.sqrt(k)) * Normal[2];
+                                            //             var Refraction = [eta * View[0] + temp1, eta * View[1] + temp2, eta * View[2] + temp3];
+                                            //             var RefractionCam = [intersection[0] + Refraction[0], intersection[1] + Refraction[1], intersection[2] + Refraction[2]]
+                                            //         // }
+                                            //         var rgb1 = traceToReflection(intersectionTemp, objectDat.id, RefractionCam, objectColor, light, 0.7, 0);
+                                            //         var intersectionTemp = rgb1[4];
+                                            //         temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
+                                            //         normalPlaneTemp = traceToReflection;
+                                            //         if (!rgb1[3]) {
+                                            //             break;
+                                            //         }
+
+                                            //     }
+
+                                            //     rgb = [temprgb[0] / dividened, temprgb[1] / dividened, temprgb[2] / dividened];
+
                                             // }
                                             
                                             if (specularEnabled && objectDat.shadow) {
