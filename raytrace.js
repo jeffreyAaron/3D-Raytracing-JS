@@ -694,7 +694,7 @@ function UpdatePlayerMovement(){
     }
     vely *= velYConstant;
     velz *= velZConstant;
-    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz])
+    var rotateY = rotateY3D(totalRotY, [camera[0], camera[1], camera[2] + velz], camera)
     camera[0] = rotateY[0];
     camera[2] = rotateY[2];
     camera[1] += vely;
@@ -1029,8 +1029,8 @@ function draw(){
                     var Px = pixelSize * (x +  adaptx / antiA) * fov - camera[0] * 0.5;
                     var Py = pixelSize * (y +  adapty / antiA) * fov - camera[1] * 0.5;
                     var Pz = camera[2] + focalLength;
-                    var P = rotateX3D(totalRotX, [Px, Py, Pz]);
-                    P = rotateY3D(totalRotY, P);
+                    var P = rotateX3D(totalRotX, [Px, Py, Pz], camera);
+                    P = rotateY3D(totalRotY, P, camera);
                     P = [P[0], P[1], P[2]]
                         for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
                             var object = objects[objectIndex];
@@ -1079,26 +1079,36 @@ function draw(){
                                             
                                             if (true) {
                                                 var temprgb = rgb;
-                                                var normalPlaneTemp = normalToPlaneVector;
-                                                var intersectionTemp = intersection;
                                                 var dividened = 1;
-                                                for (let i = 0; i < 6; i++) {
-                                                    dividened++;
-                                                    var Normal = normalPlaneTemp;
-                                                    var View = normaliseVector(subtractVectors(intersectionTemp, camera));
-                                                    var Light = normaliseVector(subtractVectors(intersectionTemp, light));
-                                                    var dotNL = dotProduct(Normal, View);
-                                                    var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
-                                                    var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
-                                                    var ReflectionCam = [intersectionTemp[0] + Reflection[0], intersectionTemp[1] + Reflection[1], intersectionTemp[2] + Reflection[2]];
-                                                    var rgb1 = traceToReflection(intersectionTemp, objectDat.id, ReflectionCam, objectColor, light, 0.7, 0);
-                                                    var intersectionTemp = rgb1[4];
-                                                    temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
-                                                    normalPlaneTemp = traceToReflection;
-                                                    if(!rgb1[3]){
-                                                        break;
-                                                    }
+                                                for (let n = 0; n < 10; n++) {
+                                                    var normalPlaneTemp = normalToPlaneVector;
+                                                    var intersectionTemp = intersection;
                                                     
+                                                    for (let i = 0; i < 60; i++) {
+                                                        var Normal = normalPlaneTemp;
+                                                        var rand = 1 / (2*Math.PI) ;
+                                                        
+                                                        var View = normaliseVector(subtractVectors(intersectionTemp, camera));
+                                                        var Light = normaliseVector(subtractVectors(intersectionTemp, light));
+                                                        var dotNL = dotProduct(Normal, View);
+                                                        var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
+                                                        var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
+                                                        var ReflectionCam = [intersectionTemp[0] + Reflection[0], intersectionTemp[1] + Reflection[1], intersectionTemp[2] + Reflection[2]];
+                                                        RandCam = rotateX3D(rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        RandCam = rotateY3D(rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        RandCam = rotateZ3D(rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        
+                                                        var rgb1 = traceToReflection(intersectionTemp, objectDat.id, RandCam, objectColor, light, 0.7, 0);
+                                                        
+                                                        if(!rgb1[3]){
+                                                            break;
+                                                        }
+                                                        dividened++;
+                                                        intersectionTemp = rgb1[4];
+                                                        temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
+                                                        normalPlaneTemp = traceToReflection;
+                                                        
+                                                    }
                                                 }
 
                                                 rgb = [temprgb[0] / dividened, temprgb[1] / dividened, temprgb[2] / dividened];
@@ -1353,34 +1363,34 @@ function draw(){
     }
 }
 
-var rotateZ3D = function (theta, node) {
+var rotateZ3D = function (theta, node, cameras) {
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
-    var x = node[0]-camera[0];
-    var y = node[1]-camera[1];
-    node[0] = x * cosTheta - y * sinTheta + camera[0];
-    node[1] = y * cosTheta + x * sinTheta + camera[1];
+    var x = node[0] - cameras[0];
+    var y = node[1] - cameras[1];
+    node[0] = x * cosTheta - y * sinTheta + cameras[0];
+    node[1] = y * cosTheta + x * sinTheta + cameras[1];
     return node;
 };
 
-var rotateX3D = function (theta, node) {
+var rotateX3D = function (theta, node, cameras) {
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
-    var y = node[1]-camera[1];
-    var z = node[2] - camera[2];
-    node[1] = y * cosTheta - z * sinTheta + camera[1];
-    node[2] = z * cosTheta + y * sinTheta + camera[2];
+    var y = node[1] - cameras[1];
+    var z = node[2] - cameras[2];
+    node[1] = y * cosTheta - z * sinTheta + cameras[1];
+    node[2] = z * cosTheta + y * sinTheta + cameras[2];
     return node;
     
 };
 
-var rotateY3D = function (theta, node) {
+var rotateY3D = function (theta, node, cameras) {
     var sinTheta = Math.sin(theta);
     var cosTheta = Math.cos(theta);
-    var x = node[0] - camera[0];
-    var z = node[2] - camera[2];
-    node[0] = x * cosTheta + z * sinTheta + camera[0];
-    node[2] = z * cosTheta - x * sinTheta + camera[2];
+    var x = node[0] - cameras[0];
+    var z = node[2] - cameras[2];
+    node[0] = x * cosTheta + z * sinTheta + cameras[0];
+    node[2] = z * cosTheta - x * sinTheta + cameras[2];
     return node;
    
 };
