@@ -91,6 +91,30 @@ var teapotData = {
 
 }
 
+var teddyBearData = {
+    id: 2,
+    shadow: true,
+    color: {
+        r: 255,
+        g: 255,
+        b: 255
+    },
+    isTransparent: false,
+    alpha: 1,
+    rotate: true,
+    rx: 0,
+    ry: 0.01,
+    rz: 0,
+    collide: false,
+    x: 500,
+    dx: 100,
+    y: 400,
+    dy: 500,
+    z: 700,
+    dz: 100
+
+}
+
 
 window.onload = () => {
     setUpComputerVars(900, 600, 400, 1);
@@ -98,7 +122,10 @@ window.onload = () => {
     addCuboidL(roomData, false);
     addCuboidL(platformData, false);
     addCuboidL(boxData, true);
-    //loadObj(teapotVerts, teapotFaces, TeapotNormals, teapotData, 2);
+    //addAreaLight(450, 250, -450, 10, 1, 1, 10);
+    //addLight([200, 350, 200]);
+    loadObj(teapotVerts, teapotFaces, TeapotNormals, teapotData, 2, true);
+    //loadObj(TeddyBearVerts, TeddyBearFaces, TeddyBearNormals, teapotData, 8, false);
     load();
 
     RenderFrames();

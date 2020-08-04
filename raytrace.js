@@ -151,7 +151,7 @@ var camera = [500, 400, 500];
 var lightPoint = [200, 350, 200];
 var lightPoint2 = [450, 250, -450];
 
-var lights = [lightPoint2, lightPoint];
+var lights = [lightPoint, lightPoint2];
 
 
 var pixelSize = 10;
@@ -240,7 +240,26 @@ function addCuboid(id, x, y, z, dx, dy, dz, transparent, alpha, shadow, collide,
 
 }
 
-function loadObj(verts, faces, vnorm ,data, scale){
+function addAreaLight(x, y, z, dx, dy, dz, dist){
+    
+    for (let ix = 0; ix < dx; ix++) {
+        for (let iy = 0; iy < dy; iy++) {
+            for (let iz = 0; iz < dz; iz++) {
+                lights.push([x + ix * dist, y + iy * dist, z + iz * dist]);
+
+            }
+
+        }
+        
+    }
+}
+
+function addLight(light){
+    lights.push(light);
+}
+
+
+function loadObj(verts, faces, vnorm ,data, scale, reverse){
 
 var id = data.id;
 var shadow = data.shadow;
@@ -286,7 +305,11 @@ for (let vert = 0; vert < verticies.length; vert+=4) {
     
 }
 for (let vn = 0; vn < norm.length; vn += 4) {
-    objectNormals[id].push([Number(norm[vn + 1].trim()), Number(norm[vn + 2].trim()), Number(norm[vn + 3].trim())])
+    if(reverse){
+        objectNormals[id].push([-Number(norm[vn + 1].trim()), -Number(norm[vn + 2].trim()), -Number(norm[vn + 3].trim())])
+    }else{
+        objectNormals[id].push([Number(norm[vn + 1].trim()), Number(norm[vn + 2].trim()), Number(norm[vn + 3].trim())])
+    }
 }
 
 objects.push(box);
@@ -927,6 +950,9 @@ function traceToReflection(ints, id, lightPoint, color, light, alpha, depth) {
                             normalToPlaneVector = interpolateNormals(isInside[1], normals[triangle[0] - normals[0] + 1], normals[triangle[1] - normals[0] + 1], normals[triangle[2] - normals[0] + 1])
                         }
                         var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+                        //if(PointLightIntensity < 0){
+                            //continue;
+                        //}
                         lightToRender = [(1 * color[0] + rgb[0] * PointLightIntensity) / 2, (1 * color[1] + rgb[1] * PointLightIntensity) / 2, (1 * color[2] + rgb[2] * PointLightIntensity) / 2, true, intersection, normalToPlaneVector];
                         triangleToRender = intersection[3];
                         //lightToRender = [rgb[0] * PointLightIntensity, rgb[1] * PointLightIntensity, rgb[2] * PointLightIntensity ]
@@ -1009,7 +1035,7 @@ function interpolateNormals(avg, n1, n2, n3){
     var y = avg[0] * n1[1] + avg[1] * n2[1] + avg[2] * n3[1];
     var z = avg[0] * n1[2] + avg[1] * n2[2] + avg[2] * n3[2];
 
-    return [-x, -y, -z];
+    return [x, y, z];
 
 
 }
@@ -1080,11 +1106,11 @@ function draw(){
                                             if (true) {
                                                 var temprgb = rgb;
                                                 var dividened = 1;
-                                                for (let n = 0; n < 10; n++) {
+                                                for (let n = 0; n < 1; n++) {
                                                     var normalPlaneTemp = normalToPlaneVector;
                                                     var intersectionTemp = intersection;
                                                     
-                                                    for (let i = 0; i < 60; i++) {
+                                                    for (let i = 1; i < 2; i++) {
                                                         var Normal = normalPlaneTemp;
                                                         var rand = 1 / (2*Math.PI) ;
                                                         
@@ -1094,18 +1120,19 @@ function draw(){
                                                         var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
                                                         var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
                                                         var ReflectionCam = [intersectionTemp[0] + Reflection[0], intersectionTemp[1] + Reflection[1], intersectionTemp[2] + Reflection[2]];
-                                                        RandCam = rotateX3D(rand * Math.random(), ReflectionCam, intersectionTemp);
-                                                        RandCam = rotateY3D(rand * Math.random(), ReflectionCam, intersectionTemp);
-                                                        RandCam = rotateZ3D(rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        //RandCam = rotateX3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        //RandCam = rotateY3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        //RandCam = rotateZ3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
                                                         
-                                                        var rgb1 = traceToReflection(intersectionTemp, objectDat.id, RandCam, objectColor, light, 0.7, 0);
+                                                        var rgb1 = traceToReflection(intersectionTemp, objectDat.id, ReflectionCam, objectColor, light, 0.7, 0);
                                                         
                                                         if(!rgb1[3]){
                                                             break;
                                                         }
-                                                        dividened++;
+                                                        var contrib = 1 / i;
+                                                        dividened += contrib;
                                                         intersectionTemp = rgb1[4];
-                                                        temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
+                                                        temprgb = [temprgb[0] + rgb1[0] * contrib, temprgb[1] + rgb1[1] * contrib, temprgb[2] + rgb1[2] * contrib];
                                                         normalPlaneTemp = traceToReflection;
                                                         
                                                     }
