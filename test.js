@@ -122,10 +122,9 @@ window.onload = () => {
     addCuboidL(roomData, false);
     addCuboidL(platformData, false);
     addCuboidL(boxData, true);
-    //addAreaLight(450, 250, -450, 10, 1, 1, 10);
-    //addLight([200, 350, 200]);
+    addLight([200, 350, 200]);
+    addLight([450, 250, -450]);
     loadObj(teapotVerts, teapotFaces, TeapotNormals, teapotData, 2, true);
-    //loadObj(TeddyBearVerts, TeddyBearFaces, TeddyBearNormals, teapotData, 8, false);
     load();
 
     RenderFrames();

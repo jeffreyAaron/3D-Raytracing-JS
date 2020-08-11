@@ -151,7 +151,7 @@ var camera = [500, 400, 500];
 var lightPoint = [200, 350, 200];
 var lightPoint2 = [450, 250, -450];
 
-var lights = [lightPoint, lightPoint2];
+var lights = [];
 
 
 var pixelSize = 10;
