@@ -1112,7 +1112,11 @@ function draw(){
                                                     
                                                     for (let i = 1; i < 2; i++) {
                                                         var Normal = normalPlaneTemp;
-                                                        var rand = 1 / (2*Math.PI) ;
+                                                        rand = 1;
+
+                                                        if (objectDat.id == 2){
+                                                            rand = 1 / (2 * Math.PI);
+                                                        }
                                                         
                                                         var View = normaliseVector(subtractVectors(intersectionTemp, camera));
                                                         var Light = normaliseVector(subtractVectors(intersectionTemp, light));
@@ -1120,11 +1124,11 @@ function draw(){
                                                         var ReflectionT = [2 * dotNL * Normal[0], 2 * dotNL * Normal[1], 2 * dotNL * Normal[2]];
                                                         var Reflection = normaliseVector(subtractVectors(ReflectionT, View));
                                                         var ReflectionCam = [intersectionTemp[0] + Reflection[0], intersectionTemp[1] + Reflection[1], intersectionTemp[2] + Reflection[2]];
-                                                        //RandCam = rotateX3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
-                                                        //RandCam = rotateY3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
-                                                        //RandCam = rotateZ3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        RandCam = rotateX3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        RandCam = rotateY3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
+                                                        RandCam = rotateZ3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
                                                         
-                                                        var rgb1 = traceToReflection(intersectionTemp, objectDat.id, ReflectionCam, objectColor, light, 0.7, 0);
+                                                        var rgb1 = traceToReflection(intersectionTemp, objectDat.id, RandCam, objectColor, light, 0.7, 0);
                                                         
                                                         if(!rgb1[3]){
                                                             break;

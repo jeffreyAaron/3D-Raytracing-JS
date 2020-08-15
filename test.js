@@ -71,9 +71,9 @@ var teapotData = {
     id: 2,
     shadow: true,
     color: {
-        r: 255,
-        g: 255,
-        b: 255
+        r: 235,
+        g: 64,
+        b: 52
     },
     isTransparent: false,
     alpha: 1,
