@@ -58,7 +58,7 @@ var boxData = {
     isTransparent: false,
     alpha: 1,
     collide: false,
-    x: 900,
+    x: 800,
     dx: 100,
     y: 50,
     dy: 500,
@@ -72,8 +72,8 @@ var teapotData = {
     shadow: true,
     color: {
         r: 235,
-        g: 64,
-        b: 52
+        g: 225,
+        b: 235
     },
     isTransparent: false,
     alpha: 1,
@@ -87,6 +87,30 @@ var teapotData = {
     y: 400,
     dy: 500,
     z: 700,
+    dz: 100
+
+}
+
+var icoData = {
+    id: 10,
+    shadow: true,
+    color: {
+        r: 235,
+        g: 235,
+        b: 235
+    },
+    isTransparent: false,
+    alpha: 1,
+    rotate: true,
+    rx: 0,
+    ry: 0.01,
+    rz: 0,
+    collide: false,
+    x: 600,
+    dx: 300,
+    y: 400,
+    dy: 500,
+    z: -1000,
     dz: 100
 
 }
@@ -124,7 +148,8 @@ window.onload = () => {
     addCuboidL(boxData, true);
     addLight([200, 350, 200]);
     addLight([450, 250, -450]);
-    loadObj(teapotVerts, teapotFaces, TeapotNormals, teapotData, 2, true);
+    //loadObj(teapotVerts, teapotFaces, TeapotNormals, teapotData, 2, true);
+    addIco(icoData, 200);
     load();
 
     RenderFrames();

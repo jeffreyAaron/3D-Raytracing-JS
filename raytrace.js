@@ -156,6 +156,7 @@ var lights = [];
 
 var pixelSize = 10;
 var antiA = 1;
+var numberOfSamples = 2;
 
 var pixelData = null;
 
@@ -589,13 +590,20 @@ document.addEventListener('keyup', function (event) {
         case 76: // L
             pixelSize--;
         break;
-
         case 73: // I
-            antiA++;
-        break;
+            numberOfSamples++;
+            break;
         case 75: // K
+            numberOfSamples--;
+            break;
+        
+        
+        case 85: // U
+            antiA++;
+            break;
+        case 74: // J
             antiA--;
-        break;
+            break;
     }
 });
 
@@ -913,7 +921,7 @@ function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject
     
 }
 
-function traceToReflection(ints, id, lightPoint, color, light, alpha, depth) {
+function traceToReflection(ints, triId, id, lightPoint, color, light, alpha, depth) {
     var intersectionP = [ints[0], ints[1], ints[2]]
     var triangleToRender = Infinity;
     
@@ -925,12 +933,12 @@ function traceToReflection(ints, id, lightPoint, color, light, alpha, depth) {
         var object = objects[objectIndex];
         var objectDat = objectData[objectIndex];
         
-        if (objectDat.id === id) {
-            continue;
-        }
         
-
+        
         for (let tri = 0; tri < object.length; tri++) {
+            if (tri === triId && objectDat.id === id) {
+                continue;
+            }
             var triangle = object[tri];
             var equation = planeBuffer[objectIndex][tri];
             var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], equation, lightPoint);
@@ -1106,7 +1114,7 @@ function draw(){
                                             if (true) {
                                                 var temprgb = rgb;
                                                 var dividened = 1;
-                                                for (let n = 0; n < 1; n++) {
+                                                for (let n = 0; n < numberOfSamples; n++) {
                                                     var normalPlaneTemp = normalToPlaneVector;
                                                     var intersectionTemp = intersection;
                                                     
@@ -1114,8 +1122,8 @@ function draw(){
                                                         var Normal = normalPlaneTemp;
                                                         rand = 1;
 
-                                                        if (objectDat.id == 2){
-                                                            rand = 1 / (2 * Math.PI);
+                                                        if (objectDat.id == 10){
+                                                            //rand = 1 / (2 * Math.PI);
                                                         }
                                                         
                                                         var View = normaliseVector(subtractVectors(intersectionTemp, camera));
@@ -1128,15 +1136,15 @@ function draw(){
                                                         RandCam = rotateY3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
                                                         RandCam = rotateZ3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
                                                         
-                                                        var rgb1 = traceToReflection(intersectionTemp, objectDat.id, RandCam, objectColor, light, 0.7, 0);
+                                                        var rgb1 = traceToReflection(intersectionTemp, tri, objectDat.id, RandCam, objectColor, light, 0.7, 0);
                                                         
                                                         if(!rgb1[3]){
                                                             break;
                                                         }
                                                         var contrib = 1 / i;
-                                                        dividened += contrib;
+                                                        dividened += 1;
                                                         intersectionTemp = rgb1[4];
-                                                        temprgb = [temprgb[0] + rgb1[0] * contrib, temprgb[1] + rgb1[1] * contrib, temprgb[2] + rgb1[2] * contrib];
+                                                        temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
                                                         normalPlaneTemp = traceToReflection;
                                                         
                                                     }
