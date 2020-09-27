@@ -828,106 +828,105 @@ function checkIfInsideTriangle(triangle, point){
     return [true, matAns];
 }
 
-function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject, near) {
-    var intersectionP = [ints[0], ints[1], ints[2]]
-    var triangleToRender = Infinity;
-    if (near) {
-        triangleToRender = -Infinity;
-    }
-    var lightToRender;
-    var lightNearToRender;
-    var lightObjectToRender;
-    var isTriangle = false;
-    for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
-        var object = objects[objectIndex];
-        var objectDat = objectData[objectIndex];
-        if (toObject) {
-            if (objectDat.id !== id) {
-                continue;
-            }
-        } else {
-            if (objectDat.id === id) {
-                continue;
-            }
-        }
+// function traceToTransparency(ints, id, lightPoint, color, light, alpha, toObject, near) {
+//     var intersectionP = [ints[0], ints[1], ints[2]]
+//     var triangleToRender = Infinity;
+//     if (near) {
+//         triangleToRender = -Infinity;
+//     }
+//     var lightToRender;
+//     var lightNearToRender;
+//     var lightObjectToRender;
+//     var isTriangle = false;
+//     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+//         var object = objects[objectIndex];
+//         var objectDat = objectData[objectIndex];
+//         if (toObject) {
+//             if (objectDat.id !== id) {
+//                 continue;
+//             }
+//         } else {
+//             if (objectDat.id === id) {
+//                 continue;
+//             }
+//         }
         
-        for (let tri = 0; tri < object.length; tri++) {
-            var triangle = object[tri];
-            var equation = planeBuffer[objectIndex][tri];
-            var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], equation, lightPoint);
-            if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
-                continue;
-            }
-            var isInside = checkIfInsideTriangle(triangle, intersection);
-            if (near) {
-            if (triangleToRender < intersection[3]) {
-                    if (isInside[0]) {
-                        //console.log(objectDat.id)
-                        rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
-                        var Lightvector = normaliseVector(subtractVectors(light, intersection));
-                        var normalToPlaneVector = normalBuffer[objectIndex][tri];
-                        var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                        if (toObject) {
-                            PointLightIntensity = -PointLightIntensity;
-                        }
-                        //PointLightIntensity = 1;
-                        // Possible Figure
+//         for (let tri = 0; tri < object.length; tri++) {
+//             var triangle = object[tri];
+//             var equation = planeBuffer[objectIndex][tri];
+//             var intersection = calcIntersection(intersectionP[0], intersectionP[1], intersectionP[2], equation, lightPoint);
+//             if (!isFinite(intersection[0] + intersection[1] + intersection[2])) {
+//                 continue;
+//             }
+//             var isInside = checkIfInsideTriangle(triangle, intersection);
+//             if (near) {
+//             if (triangleToRender < intersection[3]) {
+//                     if (isInside[0]) {
+//                         //console.log(objectDat.id)
+//                         rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
+//                         var Lightvector = normaliseVector(subtractVectors(light, intersection));
+//                         var normalToPlaneVector = normalBuffer[objectIndex][tri];
+//                         var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+//                         if (toObject) {
+//                             PointLightIntensity = -PointLightIntensity;
+//                         }
+//                         //PointLightIntensity = 1;
+//                         // Possible Figure
 
-                        lightToRender = [
-                            ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
-                            ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
-                            ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
-                        ];
-                        triangleToRender = intersection[3];
-                        isTriangle = true;
+//                         lightToRender = [
+//                             ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
+//                             ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
+//                             ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
+//                         ];
+//                         triangleToRender = intersection[3];
+//                         isTriangle = true;
 
-                    }
-                }
-            } else {
-                    if (triangleToRender > intersection[3]) {
-                        if (isInside) {
-                            //console.log(objectDat.id)
-                            rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
-                            var Lightvector = normaliseVector(subtractVectors(light, intersection));
-                            var normalToPlaneVector = normalBuffer[objectIndex][tri];
-                            var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                            if (toObject) {
-                                PointLightIntensity = -PointLightIntensity;
-                            }
-                            //PointLightIntensity = 1;
-                            // Possible Figure
+//                     }
+//                 }
+//             } else {
+//                     if (triangleToRender > intersection[3]) {
+//                         if (isInside) {
+//                             //console.log(objectDat.id)
+//                             rgb = traceToLight(intersection, objectDat.id, [objectDat.color.r, objectDat.color.g, objectDat.color.b], light);
+//                             var Lightvector = normaliseVector(subtractVectors(light, intersection));
+//                             var normalToPlaneVector = normalBuffer[objectIndex][tri];
+//                             var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
+//                             if (toObject) {
+//                                 PointLightIntensity = -PointLightIntensity;
+//                             }
+//                             //PointLightIntensity = 1;
+//                             // Possible Figure
 
-                            lightToRender = [
-                                ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
-                                ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
-                                ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
-                            ];
-                            triangleToRender = intersection[3];
-                            isTriangle = true;
+//                             lightToRender = [
+//                                 ((1 - alpha) * rgb[0] * PointLightIntensity + alpha * color[0]),
+//                                 ((1 - alpha) * rgb[1] * PointLightIntensity + alpha * color[1]),
+//                                 ((1 - alpha) * rgb[2] * PointLightIntensity + alpha * color[2])
+//                             ];
+//                             triangleToRender = intersection[3];
+//                             isTriangle = true;
 
-                        }
-                    }
-                }
+//                         }
+//                     }
+//                 }
 
-        }
-    }
+//         }
+//     }
 
-    if (isTriangle) {
-        return lightToRender;
-    }else{
-        return [255, 255, 255]
-    }
+//     if (isTriangle) {
+//         return lightToRender;
+//     }else{
+//         return [255, 255, 255]
+//     }
 
     
-}
+// }
 
-function traceToReflection(ints, triId, id, lightPoint, color, light, alpha, depth) {
+function traceToReflection(ints, triId, id, lightPoint, color, light) {
     var intersectionP = [ints[0], ints[1], ints[2]]
     var triangleToRender = Infinity;
     
     var lightToRender;
-    var lightNearToRender;
-    var lightObjectToRender;
+    
     var isTriangle = false;
     for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
         var object = objects[objectIndex];
@@ -1102,29 +1101,24 @@ function draw(){
                                             }
                                             var Lightvector = normaliseVector(subtractVectors(light, intersection));
                                             var PointLightIntensity = dotProduct(normalToPlaneVector, Lightvector);
-                                            if (objectDat.isTransparent && transparencyEnabled){
-                                                
-                                                var rgb1 = traceToTransparency(camera, objectDat.id, P, objectColor, light, objectDat.alpha, true, false);
-                                                var rgb2 = traceToTransparency(camera, objectDat.id, P, objectColor, light, objectDat.alpha, false, false);
-                                                var rgb3 = traceToTransparency(camera, objectDat.id, P, objectColor, light, objectDat.alpha, true, true);
-                                                rgb = [(rgb1[0] + rgb2[0] + rgb3[0]) / 3, (rgb1[1] + rgb2[1] + rgb3[1]) / 3, (rgb1[2] + rgb2[2] + rgb3[2]) / 3]
-                                                PointLightIntensity = 1;
-                                            }
                                             
-                                            if (true) {
+                                            
                                                 var temprgb = rgb;
                                                 var dividened = 1;
                                                 for (let n = 0; n < numberOfSamples; n++) {
                                                     var normalPlaneTemp = normalToPlaneVector;
                                                     var intersectionTemp = intersection;
                                                     
-                                                    for (let i = 1; i < 2; i++) {
+                                                    for (let i = 1; i < 4; i++) {
                                                         var Normal = normalPlaneTemp;
-                                                        rand = 1;
-
-                                                        if (objectDat.id == 10){
-                                                            //rand = 1 / (2 * Math.PI);
+                                                        var rand;
+                                                        if(objectDat.id == 0){
+                                                            rand = 0.5;
+                                                        }else{
+                                                            rand = 0.1;
                                                         }
+
+                                                        
                                                         
                                                         var View = normaliseVector(subtractVectors(intersectionTemp, camera));
                                                         var Light = normaliseVector(subtractVectors(intersectionTemp, light));
@@ -1136,12 +1130,12 @@ function draw(){
                                                         RandCam = rotateY3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
                                                         RandCam = rotateZ3D(Math.random > 0.5 ? -rand * Math.random() : rand * Math.random(), ReflectionCam, intersectionTemp);
                                                         
-                                                        var rgb1 = traceToReflection(intersectionTemp, tri, objectDat.id, RandCam, objectColor, light, 0.7, 0);
+                                                        var rgb1 = traceToReflection(intersectionTemp, tri, objectDat.id, RandCam, objectColor, light);
                                                         
                                                         if(!rgb1[3]){
                                                             break;
                                                         }
-                                                        var contrib = 1 / i;
+                                                        
                                                         dividened += 1;
                                                         intersectionTemp = rgb1[4];
                                                         temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
@@ -1152,54 +1146,6 @@ function draw(){
 
                                                 rgb = [temprgb[0] / dividened, temprgb[1] / dividened, temprgb[2] / dividened];
                                                 
-                                            }
-
-
-                                            // if (objectDat.id === 2) {
-                                            //     var temprgb = rgb;
-                                            //     var normalPlaneTemp = normalToPlaneVector;
-                                            //     var intersectionTemp = intersection;
-                                            //     var dividened = 1;
-                                            //     for (let i = 0; i < 3; i++) {
-                                            //         dividened++;
-                                            //         var Normal = normalPlaneTemp;
-                                            //         var View = normaliseVector(subtractVectors(intersectionTemp, camera));
-                                            //         var NDotV = dotProduct(Normal, View);
-                                            //         var etai = 1;
-                                            //         var etat = 1.5;
-                                            //         if (NDotV < 0){
-                                            //             NDotV = -NDotV;
-                                            //         }else{
-                                            //             Normal = [-Normal[0], -Normal[1], -Normal[2]];
-                                            //             etai = etat;
-                                            //             etat = 1;
-                                            //         }
-
-                                            //         var eta = etai / etat;
-                                            //         var k = 1 - eta * eta * (1 - NDotV * NDotV);
-                                            //         // if(k<0){
-                                            //         //     //break;
-                                            //         // }else{
-                                            //             var temp1 = (eta * NDotV - Math.sqrt(k)) * Normal[0];
-                                            //             var temp2 = (eta * NDotV - Math.sqrt(k)) * Normal[1];
-                                            //             var temp3 = (eta * NDotV - Math.sqrt(k)) * Normal[2];
-                                            //             var Refraction = [eta * View[0] + temp1, eta * View[1] + temp2, eta * View[2] + temp3];
-                                            //             var RefractionCam = [intersection[0] + Refraction[0], intersection[1] + Refraction[1], intersection[2] + Refraction[2]]
-                                            //         // }
-                                            //         var rgb1 = traceToReflection(intersectionTemp, objectDat.id, RefractionCam, objectColor, light, 0.7, 0);
-                                            //         var intersectionTemp = rgb1[4];
-                                            //         temprgb = [temprgb[0] + rgb1[0], temprgb[1] + rgb1[1], temprgb[2] + rgb1[2]];
-                                            //         normalPlaneTemp = traceToReflection;
-                                            //         if (!rgb1[3]) {
-                                            //             break;
-                                            //         }
-
-                                            //     }
-
-                                            //     rgb = [temprgb[0] / dividened, temprgb[1] / dividened, temprgb[2] / dividened];
-
-                                            // }
-                                            
                                             if (specularEnabled && objectDat.shadow) {
                                                 var specularConstant = 250;
                                                 var Normal = normalToPlaneVector;
@@ -1240,9 +1186,6 @@ function draw(){
                 var g = Math.ceil(AvglightToRender[1] / numSamples);
                 var b = Math.ceil(AvglightToRender[2] / numSamples);
 
-                //var yTemp = y * pixelSize;
-                //var xTemp = x * pixelSize;
-
                 var index = 0;
 
                 for (let y1 = 0; y1 < pixelSize; y1++) {
@@ -1257,133 +1200,18 @@ function draw(){
                     }
 
                 }
-                // //
-                // index = (yTemp* width + xTemp) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = (yTemp * width + (xTemp + 1)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = (yTemp * width + (xTemp + 2)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // //
-                // index = ((yTemp + 1) * width + xTemp ) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 2) * width + xTemp) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-
+               
             } else {
 
                 var r = 255;
                 var g = 255;
                 var b = 255;
 
-                //var yTemp = y * pixelSize;
-                //var xTemp = x * pixelSize;
-
                 var index = 0;
-
-                // //
-                // index = (yTemp * width + xTemp) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = (yTemp * width + (xTemp + 1)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = (yTemp * width + (xTemp + 2)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // //
-                // index = ((yTemp + 1) * width + xTemp) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 1) * width + (xTemp + 1)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 1) * width + (xTemp + 2)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 2) * width + xTemp) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 2) * width + (xTemp + 1)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
-
-                // index = ((yTemp + 2) * width + (xTemp + 2)) * 4;
-                // pixelData[index + 0] = r;
-                // pixelData[index + 1] = g;
-                // pixelData[index + 2] = b;
-                // pixelData[index + 3] = 255;
 
                 for (let y1 = 0; y1 < pixelSize; y1++) {
                     for (let x1 = 0; x1 < pixelSize; x1++) {
-                        var index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                        index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
                         pixelData[index + 0] = 255;
                         pixelData[index + 1] = 255;
@@ -1394,9 +1222,6 @@ function draw(){
 
                 }
             }
-
-
-
             
         }           
     }
