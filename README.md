@@ -10,7 +10,7 @@
 - Multiple Light Sources
 - Different Colors
 - Reflective Surfaces
-- Blurred Reflections (Experimental, Noisy, And Slow)
+- Blurred Reflections (Slow)
 
 # Example:
 ![Test](https://github.com/jeffreyAaron/3D-Raytracing-JS/blob/master/Films/Clips/ReflectionTest10.PNG?raw=true)
