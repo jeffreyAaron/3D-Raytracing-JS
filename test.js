@@ -86,8 +86,29 @@ var teapotData = {
     dx: 100,
     y: 400,
     dy: 500,
-    z: 700,
+    z: -700,
     dz: 100
+
+}
+
+var boxData2 = {
+    id: 7,
+    shadow: true,
+    color: {
+        r: 252,
+        g: 186,
+        b: 3
+    },
+    rotate: true,
+    isTransparent: false,
+    alpha: 1,
+    collide: false,
+    x: 100,
+    dx: 200,
+    y: 100,
+    dy: 400,
+    z: -900,
+    dz: 200
 
 }
 
@@ -146,6 +167,7 @@ window.onload = () => {
     addCuboidL(roomData, false);
     addCuboidL(platformData, false);
     addCuboidL(boxData, true);
+    addCuboidL(boxData2, true);
     addLight([200, 350, 200]);
     addLight([450, 250, -450]);
     //loadObj(teapotVerts, teapotFaces, TeapotNormals, teapotData, 2, true);

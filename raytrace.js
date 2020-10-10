@@ -699,8 +699,8 @@ var velZConstant = 0.85;
 var velYConstant = 0.9;
 var velRotYConstant = 0.9;
 var velRotXConstant = 0.85;
-var totalRotX = 0.001;
-var totalRotY = 0.001;
+var totalRotX = -0.20943951023931964;
+var totalRotY = -2.590068609959585;
 
 
 function UpdatePlayerMovement(){
@@ -1187,19 +1187,25 @@ function draw(){
                 var b = Math.ceil(AvglightToRender[2] / numSamples);
 
                 var index = 0;
+                index = ((y * pixelSize) * width + (x * pixelSize)) * 4;
 
-                for (let y1 = 0; y1 < pixelSize; y1++) {
-                    for (let x1 = 0; x1 < pixelSize; x1++) {
-                        index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                pixelData[index + 0] = r;
+                pixelData[index + 1] = g;
+                pixelData[index + 2] = b;
+                pixelData[index + 3] = 255;
 
-                        pixelData[index + 0] = r;
-                        pixelData[index + 1] = g;
-                        pixelData[index + 2] = b;
-                        pixelData[index + 3] = 255;
+                // for (let y1 = 0; y1 < pixelSize; y1++) {
+                //     for (let x1 = 0; x1 < pixelSize; x1++) {
+                //         index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
-                    }
+                //         pixelData[index + 0] = r;
+                //         pixelData[index + 1] = g;
+                //         pixelData[index + 2] = b;
+                //         pixelData[index + 3] = 255;
 
-                }
+                //     }
+
+                // }
                
             } else {
 
@@ -1208,19 +1214,25 @@ function draw(){
                 var b = 255;
 
                 var index = 0;
+                index = ((y * pixelSize) * width + (x * pixelSize)) * 4;
 
-                for (let y1 = 0; y1 < pixelSize; y1++) {
-                    for (let x1 = 0; x1 < pixelSize; x1++) {
-                        index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
+                pixelData[index + 0] = 255;
+                pixelData[index + 1] = 255;
+                pixelData[index + 2] = 255;
+                pixelData[index + 3] = 255;
 
-                        pixelData[index + 0] = 255;
-                        pixelData[index + 1] = 255;
-                        pixelData[index + 2] = 255;
-                        pixelData[index + 3] = 255;
+                // for (let y1 = 0; y1 < pixelSize; y1++) {
+                //     for (let x1 = 0; x1 < pixelSize; x1++) {
+                //         index = ((y * pixelSize + y1) * width + (x * pixelSize + x1)) * 4;
 
-                    }
+                //         pixelData[index + 0] = 255;
+                //         pixelData[index + 1] = 255;
+                //         pixelData[index + 2] = 255;
+                //         pixelData[index + 3] = 255;
 
-                }
+                //     }
+
+                // }
             }
             
         }           
